@@ -117,6 +117,144 @@ nav {
 .view { display: none; padding: 1.5rem; max-width: 1000px; margin: 0 auto; }
 .view.active { display: block; }
 
+/* date picker */
+.date-picker-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+}
+
+.date-nav-btn {
+  background: none;
+  border: none;
+  color: var(--muted2);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.1rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.date-nav-btn:hover { color: var(--accent); }
+.date-nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+#date-picker {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  min-width: 100px;
+}
+
+#date-picker::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(3) hue-rotate(5deg);
+  cursor: pointer;
+}
+
+.today-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-weight: 600;
+}
+
+/* ── LOGIN SCREEN ── */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+#login-screen.hidden { display: none; }
+
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-logo {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+.login-box h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 0.4rem; }
+.login-box h1 span { color: var(--accent); }
+.login-subtitle { font-size: 0.8rem; color: var(--muted2); margin-bottom: 2rem; }
+.login-fields { text-align: left; }
+
+.login-error {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent3);
+  text-align: center;
+  margin-top: 0.75rem;
+  display: none;
+}
+.login-error.visible { display: block; }
+
+.login-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.login-btn:hover { opacity: 0.88; }
+.login-btn:active { transform: scale(0.98); }
+.login-btn.shake { animation: loginShake 0.4s ease; }
+
+@keyframes loginShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.logout-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
 /* ── SETUP MODAL ── */
 .modal-overlay {
   position: fixed;
@@ -446,21 +584,33 @@ nav {
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">PY · HEALTH</div>
+    <h1>Welcome <span>Back</span></h1>
+    <p class="login-subtitle">Your personal health dashboard</p>
+    <div class="login-fields">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="login-user" placeholder="Enter username" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password" />
+      </div>
+    </div>
+    <div class="login-error" id="login-error">✗ Incorrect username or password</div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
 <!-- SETUP MODAL -->
 <div class="modal-overlay" id="setup-modal">
   <div class="modal">
     <h2>Connect GitHub Storage</h2>
     <p>Your data will be saved privately to your GitHub repo. You only need to do this once. <a href="SETUP.md" target="_blank">See setup guide →</a></p>
 
-    <div class="field">
-      <label>GitHub Username</label>
-      <input type="text" id="cfg-user" placeholder="e.g. pawanyandapalli7" />
-    </div>
-    <div class="field">
-      <label>Repository Name</label>
-      <input type="text" id="cfg-repo" placeholder="e.g. health-tracker" />
-      <div class="field-hint">The private repo you created for this tracker.</div>
-    </div>
     <div class="field">
       <label>Personal Access Token</label>
       <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
@@ -492,6 +642,7 @@ nav {
       <span id="sync-label" style="color:var(--muted)">not connected</span>
     </div>
     <button class="settings-btn" onclick="openSettings()">⚙ settings</button>
+    <button class="logout-btn" onclick="doLogout()">↩ logout</button>
   </div>
 </nav>
 
@@ -499,7 +650,15 @@ nav {
 <div class="view active" id="view-checklist">
   <div class="checklist-top">
     <div class="page-title">Daily <span>Routine</span></div>
-    <div class="streak-badge">🔥 <span class="streak-num" id="streak-num">0</span> <span style="color:var(--muted2)">day streak</span></div>
+    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+      <div class="date-picker-wrap">
+        <button class="date-nav-btn" id="prev-day-btn" onclick="shiftDay(-1)" title="Previous day">‹</button>
+        <input type="date" id="date-picker" onchange="onDateChange(this.value)" />
+        <button class="date-nav-btn" id="next-day-btn" onclick="shiftDay(1)" title="Next day">›</button>
+        <span class="today-tag" id="today-tag" style="display:none">TODAY</span>
+      </div>
+      <div class="streak-badge">🔥 <span class="streak-num" id="streak-num">0</span> <span style="color:var(--muted2)">day streak</span></div>
+    </div>
   </div>
 
   <div class="daily-progress">
@@ -511,7 +670,7 @@ nav {
       <div class="ring-label" id="ring-pct">0%</div>
     </div>
     <div class="progress-info">
-      <h2>Today's Progress</h2>
+      <h2 id="progress-date-label">Today's Progress</h2>
       <p id="progress-sub">0 of 0 tasks completed</p>
       <div class="mini-cats" id="mini-cats"></div>
     </div>
@@ -651,37 +810,32 @@ const HEAT_COLORS = ['#1a2030','#2a3a20','#3d6030','#4caf50','#7ddc81'];
 // ─── CONFIG ──────────────────────────────────────────
 function getConfig() {
   return {
-    user: localStorage.getItem('gh_user') || '',
-    repo: localStorage.getItem('gh_repo') || '',
+    user: 'pawanyandapalli7',
+    repo: 'health-tracker',
     token: localStorage.getItem('gh_token') || '',
   };
 }
 
 function isConfigured() {
-  const c = getConfig();
-  return c.user && c.repo && c.token;
+  return !!localStorage.getItem('gh_token');
 }
 
 function saveConfig() {
-  const user = document.getElementById('cfg-user').value.trim();
-  const repo = document.getElementById('cfg-repo').value.trim();
   const token = document.getElementById('cfg-token').value.trim();
   const errEl = document.getElementById('modal-error');
   errEl.style.display = 'none';
 
-  if (!user || !repo || !token) { errEl.textContent = 'All fields are required.'; errEl.style.display = 'block'; return; }
+  if (!token) { errEl.textContent = 'Please enter your Personal Access Token.'; errEl.style.display = 'block'; return; }
 
   const btn = document.getElementById('setup-save-btn');
   btn.disabled = true;
   btn.textContent = 'Connecting...';
 
-  // Test token by fetching repo
+  const { user, repo } = getConfig();
   fetch(`https://api.github.com/repos/${user}/${repo}`, {
     headers: { Authorization: `token ${token}`, Accept: 'application/vnd.github.v3+json' }
   }).then(r => {
-    if (!r.ok) throw new Error(`Repo not found or token invalid (${r.status})`);
-    localStorage.setItem('gh_user', user);
-    localStorage.setItem('gh_repo', repo);
+    if (!r.ok) throw new Error(`Token invalid or repo not found (${r.status})`);
     localStorage.setItem('gh_token', token);
     document.getElementById('setup-modal').classList.add('hidden');
     initApp();
@@ -695,8 +849,6 @@ function saveConfig() {
 
 function openSettings() {
   const c = getConfig();
-  document.getElementById('cfg-user').value = c.user;
-  document.getElementById('cfg-repo').value = c.repo;
   document.getElementById('cfg-token').value = c.token;
   document.getElementById('setup-modal').classList.remove('hidden');
 }
@@ -757,14 +909,51 @@ async function ghSave(data) {
 
 // ─── LOCAL CACHE ─────────────────────────────────────
 let localData = {};
+let activeKey = new Date().toISOString().split('T')[0]; // currently viewed date
 
 function todayKey() { return new Date().toISOString().split('T')[0]; }
+function isToday() { return activeKey === todayKey(); }
 
-function getTodayData() { return localData[todayKey()] || { checks: {}, note: '' }; }
+function getActiveData() { return localData[activeKey] || { checks: {}, note: '' }; }
 
-function setTodayData(d) {
-  localData[todayKey()] = d;
+function setActiveData(d) {
+  localData[activeKey] = d;
   debouncedSave();
+}
+
+// ─── DATE PICKER ─────────────────────────────────────
+function initDatePicker() {
+  const picker = document.getElementById('date-picker');
+  picker.value = activeKey;
+  picker.max = todayKey(); // can't go into the future
+  updateDateUI();
+}
+
+function onDateChange(val) {
+  if (!val) return;
+  activeKey = val;
+  updateDateUI();
+  renderChecklist();
+}
+
+function shiftDay(delta) {
+  const d = new Date(activeKey + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  const newKey = d.toISOString().split('T')[0];
+  if (newKey > todayKey()) return;
+  activeKey = newKey;
+  document.getElementById('date-picker').value = activeKey;
+  updateDateUI();
+  renderChecklist();
+}
+
+function updateDateUI() {
+  const today = isToday();
+  document.getElementById('today-tag').style.display = today ? 'inline' : 'none';
+  document.getElementById('next-day-btn').disabled = isToday();
+  const d = new Date(activeKey + 'T12:00:00');
+  const label = today ? "Today's Progress" : d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('progress-date-label').textContent = label;
 }
 
 let saveTimer = null;
@@ -828,7 +1017,7 @@ function setSyncDot(id, state) {
 
 // ─── CHECKLIST RENDER ─────────────────────────────────
 function renderChecklist() {
-  const dayData = getTodayData();
+  const dayData = getActiveData();
   const container = document.getElementById('sections-container');
   container.innerHTML = '';
 
@@ -876,10 +1065,10 @@ function renderChecklist() {
       div.className = 'item' + (checked ? ' checked' : '');
       div.innerHTML = `<div class="cb"><svg viewBox="0 0 12 9"><polyline points="1,4.5 4.5,8 11,1"/></svg></div><div><div class="item-text">${item.text}</div>${item.note ? `<div class="item-note">${item.note}</div>` : ''}</div>`;
       div.addEventListener('click', () => {
-        const d = getTodayData();
+        const d = getActiveData();
         if (!d.checks) d.checks = {};
         d.checks[key] = !d.checks[key];
-        setTodayData(d);
+        setActiveData(d);
         div.classList.toggle('checked', !!d.checks[key]);
         updateRing();
         updateSecBar(si, section);
@@ -893,11 +1082,12 @@ function renderChecklist() {
   });
 
   updateRing();
+  initDatePicker();
   document.getElementById('streak-num').textContent = calcStreak();
 }
 
 function updateRing() {
-  const dayData = getTodayData();
+  const dayData = getActiveData();
   const stats = calcStats(dayData);
   const circ = 220;
   document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * stats.pct / 100);
@@ -919,7 +1109,7 @@ function updateRing() {
 }
 
 function updateSecBar(si, section) {
-  const dayData = getTodayData();
+  const dayData = getActiveData();
   const checkable = section.items.filter(i => i.text);
   const done = checkable.filter(item => {
     const ii = section.items.indexOf(item);
@@ -933,10 +1123,11 @@ function updateSecBar(si, section) {
 }
 
 function resetToday() {
-  if (!confirm('Reset all checkboxes for today?')) return;
-  const d = getTodayData();
+  const label = isToday() ? 'today' : new Date(activeKey + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (!confirm(`Reset all checkboxes for ${label}?`)) return;
+  const d = getActiveData();
   d.checks = {};
-  setTodayData(d);
+  setActiveData(d);
   renderChecklist();
 }
 
@@ -947,7 +1138,7 @@ function renderDashboard() {
   const daysLogged = allKeys.length;
   const streak = calcStreak();
   const longest = calcLongest();
-  const todayStats = calcStats(getTodayData());
+  const todayStats = calcStats(localData[todayKey()] || { checks: {} });
   const avgPct = daysLogged ? Math.round(allKeys.reduce((s, k) => s + calcStats(localData[k]).pct, 0) / daysLogged) : 0;
 
   // Stat cards
@@ -1030,8 +1221,12 @@ function renderDashboard() {
 
 // ─── NOTES ────────────────────────────────────────────
 function renderNotes() {
-  document.getElementById('note-today-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  const dayData = getTodayData();
+  const activeDate = new Date(activeKey + 'T12:00:00');
+  const isActiveToday = isToday();
+  document.getElementById('note-today-date').textContent = isActiveToday
+    ? new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})
+    : activeDate.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const dayData = getActiveData();
   document.getElementById('note-input').value = dayData.note || '';
 
   const pastEl = document.getElementById('past-notes');
@@ -1053,9 +1248,9 @@ function renderNotes() {
 
 function saveNote() {
   const text = document.getElementById('note-input').value;
-  const d = getTodayData();
+  const d = getActiveData();
   d.note = text;
-  setTodayData(d);
+  setActiveData(d);
   renderNotes();
 }
 
@@ -1083,12 +1278,58 @@ async function initApp() {
   document.title = `Health — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 }
 
-// Boot
-if (isConfigured()) {
-  document.getElementById('setup-modal').classList.add('hidden');
-  initApp();
-} else {
-  document.getElementById('setup-modal').classList.remove('hidden');
+// ─── AUTH ─────────────────────────────────────────────
+// ⚠️ Change these credentials to your own!
+const AUTH_USER = 'pawan';
+const AUTH_PASS = 'health2026';
+
+function isLoggedIn() {
+  return sessionStorage.getItem('ht_auth') === 'true';
+}
+
+function doLogin() {
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (user === AUTH_USER && pass === AUTH_PASS) {
+    sessionStorage.setItem('ht_auth', 'true');
+    document.getElementById('login-screen').classList.add('hidden');
+    errEl.classList.remove('visible');
+    bootApp();
+  } else {
+    errEl.classList.add('visible');
+    btn.classList.remove('shake');
+    void btn.offsetWidth; // reflow to retrigger animation
+    btn.classList.add('shake');
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('ht_auth');
+  location.reload();
+}
+
+// Allow Enter key on login fields
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function bootApp() {
+  if (isConfigured()) {
+    document.getElementById('setup-modal').classList.add('hidden');
+    initApp();
+  } else {
+    document.getElementById('setup-modal').classList.remove('hidden');
+  }
+}
+
+// ─── BOOT ─────────────────────────────────────────────
+if (isLoggedIn()) {
+  document.getElementById('login-screen').classList.add('hidden');
+  bootApp();
 }
 </script>
 </body>

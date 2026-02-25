@@ -21,5 +21,12 @@
     "mood": 0,
     "energy": 0,
     "graceUsed": []
+  },
+  "2026-02-23": {
+    "checks": {},
+    "note": "",
+    "mood": 4,
+    "energy": 0,
+    "graceUsed": []
   }
 }

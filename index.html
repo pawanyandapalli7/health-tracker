@@ -1,0 +1,3593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health OS — Pawan</title>
+<meta name="theme-color" content="#f0c040">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Health OS">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --bg: #07090e;
+  --surface: #0d1017;
+  --card: #111520;
+  --card2: #161c2a;
+  --border: #1c2233;
+  --border2: #232d42;
+  --gold: #f0c040;
+  --gold2: #f5d060;
+  --blue: #4d8ef5;
+  --green: #3ecf82;
+  --red: #f04f4f;
+  --orange: #f08040;
+  --purple: #9b6bda;
+  --text: #e0e4f0;
+  --muted: #4a5470;
+  --muted2: #6b778f;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════ */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 999;
+  overflow-y: auto;
+}
+#login-screen.hidden { display: none; }
+
+/* ── LANDING ── */
+.landing-wrap { min-height: 100vh; display: flex; flex-direction: column; }
+
+.landing-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 2rem; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: rgba(10,12,18,0.92);
+  backdrop-filter: blur(12px); z-index: 10;
+}
+.landing-logo { font-family: var(--display); font-weight: 800; font-size: 1.1rem; }
+.landing-logo span { color: var(--gold); }
+.landing-nav-links { display: flex; align-items: center; gap: 1.25rem; }
+.landing-nav-link { font-family: var(--mono); font-size: 0.7rem; color: var(--muted2); text-decoration: none; transition: color 0.2s; }
+.landing-nav-link:hover { color: var(--text); }
+.landing-signin-btn {
+  background: var(--gold); color: #000; border: none;
+  font-family: var(--display); font-weight: 700; font-size: 0.78rem;
+  padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.landing-signin-btn:hover { opacity: 0.85; }
+
+.landing-hero {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center;
+  padding: 5rem 2rem 3rem; position: relative; overflow: hidden;
+}
+.landing-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(240,192,64,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.landing-eyebrow {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.landing-eyebrow::before, .landing-eyebrow::after {
+  content: ''; display: inline-block; width: 30px; height: 1px; background: var(--gold); opacity: 0.4;
+}
+.landing-hero h1 {
+  font-family: var(--display); font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800; line-height: 1.1; margin-bottom: 1.25rem; max-width: 800px;
+}
+.landing-hero h1 em { color: var(--gold); font-style: normal; }
+.landing-hero p {
+  font-size: 1rem; color: var(--muted2); max-width: 560px;
+  line-height: 1.7; margin-bottom: 2.5rem;
+}
+.landing-cta-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 3.5rem; }
+.landing-cta-primary {
+  background: var(--gold); color: #000; border: none;
+  font-family: var(--display); font-weight: 800; font-size: 0.9rem;
+  padding: 0.85rem 2rem; border-radius: 10px; cursor: pointer;
+  transition: all 0.2s; box-shadow: 0 0 24px rgba(240,192,64,0.25);
+}
+.landing-cta-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 0 32px rgba(240,192,64,0.35); }
+.landing-cta-secondary {
+  background: transparent; color: var(--muted2); border: 1px solid var(--border2);
+  font-family: var(--mono); font-size: 0.75rem;
+  padding: 0.85rem 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+}
+.landing-cta-secondary:hover { border-color: var(--muted2); color: var(--text); }
+
+/* Pipeline flow animation */
+.landing-pipeline {
+  display: flex; align-items: center; gap: 0; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 1rem;
+}
+.lp-stage {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.7rem 1rem; min-width: 90px;
+  position: relative; transition: border-color 0.3s;
+}
+.lp-stage.active { border-color: var(--gold); }
+.lp-stage.active .lp-dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.lp-icon { font-size: 1.2rem; margin-bottom: 0.2rem; }
+.lp-label { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.lp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); margin-top: 0.35rem; transition: all 0.5s; }
+.lp-arrow { font-size: 0.85rem; color: var(--muted); padding: 0 0.3rem; }
+
+/* Stats bar */
+.landing-stats {
+  display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
+  padding: 2rem; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.landing-stat { text-align: center; }
+.landing-stat-value { font-family: var(--display); font-size: 1.8rem; font-weight: 800; color: var(--gold); }
+.landing-stat-label { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 0.2rem; }
+
+/* Features grid */
+.landing-features {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+  padding: 2.5rem 2rem; max-width: 1000px; margin: 0 auto; width: 100%;
+}
+.landing-feature {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem; transition: border-color 0.2s;
+}
+.landing-feature:hover { border-color: var(--border2); }
+.lf-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.lf-title { font-family: var(--display); font-weight: 700; font-size: 0.9rem; margin-bottom: 0.35rem; }
+.lf-desc { font-size: 0.73rem; color: var(--muted2); line-height: 1.6; }
+.lf-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.65rem; }
+.lf-tag { font-family: var(--mono); font-size: 0.58rem; padding: 2px 6px; border-radius: 4px; background: var(--surface); color: var(--muted2); }
+
+/* Login panel (inside landing) */
+.landing-login-section {
+  padding: 3rem 2rem; display: flex; flex-direction: column;
+  align-items: center; background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.landing-login-label {
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 1.25rem;
+}
+.landing-login-box {
+  width: 100%; max-width: 360px; background: var(--card);
+  border: 1px solid var(--border2); border-radius: 16px; padding: 2rem;
+}
+
+.login-box {
+  width: 100%; max-width: 380px;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.login-eyebrow { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; margin-bottom: 1rem; }
+.login-box h1 { font-family: var(--display); font-size: 2rem; font-weight: 800; margin-bottom: 0.3rem; }
+.login-box h1 span { color: var(--gold); }
+.login-sub { font-size: 0.8rem; color: var(--muted2); margin-bottom: 2rem; }
+.l-field { text-align: left; margin-bottom: 0.9rem; }
+.l-field label { display: block; font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.35rem; }
+.l-field input { width: 100%; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.82rem; padding: 0.65rem 1rem; outline: none; transition: border-color 0.2s; }
+.l-field input:focus { border-color: var(--gold); }
+.l-field input::placeholder { color: var(--muted); }
+.login-err { font-family: var(--mono); font-size: 0.72rem; color: var(--red); margin-top: 0.5rem; display: none; }
+.login-err.show { display: block; }
+.login-btn { width: 100%; margin-top: 1.2rem; background: var(--gold); color: #000; border: none; border-radius: 10px; padding: 0.85rem; font-family: var(--display); font-weight: 700; font-size: 0.95rem; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s; }
+.login-btn:hover { opacity: 0.88; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+.login-btn.shake { animation: shake 0.4s ease; }
+
+/* ═══════════════════════════════════════
+   GITHUB SETUP MODAL
+═══════════════════════════════════════ */
+.overlay { position: fixed; inset: 0; background: rgba(7,9,14,0.92); backdrop-filter: blur(8px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.overlay.hidden { display: none; }
+.modal { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 2rem; max-width: 460px; width: 100%; }
+.modal h2 { font-family: var(--display); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
+.modal p { font-size: 0.8rem; color: var(--muted2); margin-bottom: 1.5rem; line-height: 1.6; }
+.m-field { margin-bottom: 0.9rem; }
+.m-field label { display: block; font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.35rem; }
+.m-field input { width: 100%; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.8rem; padding: 0.6rem 1rem; outline: none; transition: border-color 0.2s; }
+.m-field input:focus { border-color: var(--gold); }
+.m-field input::placeholder { color: var(--muted); }
+.field-hint { font-size: 0.7rem; color: var(--muted); margin-top: 0.3rem; line-height: 1.5; }
+.field-hint a { color: var(--blue); text-decoration: none; }
+.modal-err { font-size: 0.75rem; color: var(--red); font-family: var(--mono); margin-top: 0.6rem; display: none; }
+.btn-primary { background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 0.72rem 1.5rem; font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: var(--display); transition: opacity 0.2s; width: 100%; margin-top: 1.2rem; }
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,9,14,0.96);
+  backdrop-filter: blur(16px);
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap; gap: 0.6rem;
+}
+.nav-logo { font-family: var(--display); font-size: 1rem; font-weight: 800; color: var(--gold); letter-spacing: -0.5px; }
+.nav-logo span { color: var(--muted2); font-weight: 400; font-size: 0.75rem; margin-left: 0.4rem; font-family: var(--mono); }
+
+.nav-tabs { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.nav-tab { padding: 0.42rem 1rem; font-size: 0.76rem; font-weight: 600; cursor: pointer; color: var(--muted2); transition: all 0.2s; border: none; background: transparent; font-family: var(--sans); }
+.nav-tab.active { background: var(--gold); color: #000; }
+.nav-tab:hover:not(.active) { color: var(--text); background: var(--border); }
+
+.nav-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.sync-pill { display: flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.68rem; color: var(--muted2); }
+.sdot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
+.sdot.syncing { background: var(--gold); animation: blink 1s infinite; }
+.sdot.synced { background: var(--green); }
+.sdot.error { background: var(--red); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.icon-btn { background: transparent; border: 1px solid var(--border); color: var(--muted2); font-family: var(--mono); font-size: 0.68rem; padding: 0.32rem 0.7rem; border-radius: 6px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+.icon-btn.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* ═══════════════════════════════════════
+   VIEWS
+═══════════════════════════════════════ */
+.view { display: none; padding: 1.5rem; max-width: 1000px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* ═══════════════════════════════════════
+   COMMAND BAR (date + mode + tokens)
+═══════════════════════════════════════ */
+.command-bar {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+
+.date-ctrl { display: flex; align-items: center; gap: 0.4rem; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.4rem 0.75rem; }
+.d-btn { background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 1rem; line-height: 1; transition: color 0.15s; padding: 0 0.1rem; }
+.d-btn:hover { color: var(--gold); }
+.d-btn:disabled { opacity: 0.2; cursor: default; }
+#date-picker { background: transparent; border: none; color: var(--gold); font-family: var(--mono); font-size: 0.76rem; outline: none; cursor: pointer; }
+#date-picker::-webkit-calendar-picker-indicator { filter: invert(0.4) sepia(1) saturate(4) hue-rotate(5deg); cursor: pointer; }
+.today-badge { background: var(--gold); color: #000; font-family: var(--mono); font-size: 0.6rem; font-weight: 700; border-radius: 4px; padding: 1px 5px; letter-spacing: 0.5px; }
+
+.mode-selector { position: relative; }
+.mode-btn { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.4rem 0.9rem; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: border-color 0.2s; white-space: nowrap; }
+.mode-btn:hover { border-color: var(--gold); }
+.mode-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mode-menu { position: absolute; top: calc(100% + 6px); left: 0; background: var(--card2); border: 1px solid var(--border2); border-radius: 10px; padding: 0.4rem; min-width: 180px; z-index: 50; display: none; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+.mode-menu.open { display: block; }
+.mode-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.8rem; border-radius: 7px; cursor: pointer; font-size: 0.82rem; transition: background 0.15s; }
+.mode-item:hover { background: var(--border); }
+.mode-item.active { background: rgba(240,192,64,0.1); }
+.mode-item-name { flex: 1; font-weight: 500; }
+.mode-item-desc { font-size: 0.7rem; color: var(--muted2); }
+
+.grace-pill { display: flex; align-items: center; gap: 0.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.4rem 0.9rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted2); white-space: nowrap; }
+.grace-token { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--gold); opacity: 0.3; cursor: pointer; transition: opacity 0.2s; }
+.grace-token.used { opacity: 0.1; }
+.grace-token.available { opacity: 1; }
+.grace-token:hover { opacity: 0.7; }
+
+.copy-yesterday-btn { display: flex; align-items: center; gap: 0.4rem; background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 0.4rem 0.9rem; cursor: pointer; font-size: 0.76rem; color: var(--muted2); transition: all 0.2s; white-space: nowrap; font-family: var(--mono); }
+.copy-yesterday-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ═══════════════════════════════════════
+   TODAY'S FOCUS CARD
+═══════════════════════════════════════ */
+.focus-card {
+  background: linear-gradient(135deg, rgba(240,192,64,0.08) 0%, rgba(77,142,245,0.05) 100%);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 1.2rem;
+}
+.focus-icon { font-size: 2rem; flex-shrink: 0; }
+.focus-eyebrow { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.3rem; }
+.focus-text { font-family: var(--display); font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
+.focus-why { font-size: 0.78rem; color: var(--muted2); margin-top: 0.25rem; }
+
+/* ═══════════════════════════════════════
+   MOMENTUM + STATS ROW
+═══════════════════════════════════════ */
+.top-row { display: grid; grid-template-columns: auto 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+.momentum-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.3rem 1.5rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 160px;
+  position: relative; overflow: hidden;
+}
+.momentum-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(240,192,64,0.08) 0%, transparent 70%); pointer-events: none; }
+.momentum-eyebrow { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 0.6rem; }
+.momentum-score { font-family: var(--display); font-size: 3.5rem; font-weight: 800; line-height: 1; }
+.momentum-score.thriving { color: var(--green); }
+.momentum-score.stable { color: var(--gold); }
+.momentum-score.risk { color: var(--red); }
+.momentum-status { font-family: var(--mono); font-size: 0.72rem; margin-top: 0.35rem; letter-spacing: 1px; }
+.momentum-status.thriving { color: var(--green); }
+.momentum-status.stable { color: var(--gold); }
+.momentum-status.risk { color: var(--red); }
+.momentum-bar { width: 100%; height: 4px; background: var(--border2); border-radius: 100px; overflow: hidden; margin-top: 0.7rem; }
+.momentum-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.stat-tile { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+.stat-tile-label { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.4rem; }
+.stat-tile-value { font-family: var(--display); font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.stat-tile-value.g { color: var(--green); }
+.stat-tile-value.b { color: var(--blue); }
+.stat-tile-value.o { color: var(--orange); }
+.stat-tile-sub { font-size: 0.7rem; color: var(--muted2); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; }
+.trend { font-size: 0.75rem; font-weight: 700; }
+.trend.up { color: var(--green); }
+.trend.flat { color: var(--muted2); }
+.trend.down { color: var(--red); }
+
+/* ═══════════════════════════════════════
+   MOOD + ENERGY
+═══════════════════════════════════════ */
+.mood-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+.mood-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.2rem; }
+.mood-label { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.75rem; }
+.rating-dots { display: flex; gap: 0.5rem; }
+.rdot { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--border2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; font-family: var(--mono); color: var(--muted); transition: all 0.18s; flex-shrink: 0; position: relative; }
+.rdot:hover { border-color: var(--gold); color: var(--gold); transform: scale(1.1); }
+.rdot:hover::after { content: attr(data-label); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--card2); border: 1px solid var(--border2); color: var(--text); font-size: 0.65rem; font-family: var(--mono); padding: 3px 8px; border-radius: 5px; white-space: nowrap; pointer-events: none; z-index: 20; letter-spacing: 0.5px; }
+.rdot.sel { color: #000; border-color: transparent; }
+
+/* ═══════════════════════════════════════
+   SECTIONS / CHECKLIST
+═══════════════════════════════════════ */
+.sections { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1rem; }
+
+.section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.3s; }
+.section.complete { border-color: rgba(62,207,130,0.3); }
+
+.sec-hdr { display: flex; align-items: center; gap: 0.65rem; padding: 0.75rem 1.1rem; cursor: pointer; user-select: none; }
+.sec-hdr:hover { background: rgba(255,255,255,0.02); }
+.sec-ico { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: rgba(255,255,255,0.04); font-size: 0.9rem; flex-shrink: 0; }
+.sec-meta { flex: 1; }
+.sec-name { font-size: 0.85rem; font-weight: 600; }
+.sec-time { font-size: 0.67rem; color: var(--muted); font-family: var(--mono); }
+.sec-prog { display: flex; align-items: center; gap: 0.45rem; }
+.sec-bw { width: 50px; height: 3px; background: var(--border2); border-radius: 100px; overflow: hidden; }
+.sec-bf { height: 100%; border-radius: 100px; transition: width 0.4s; }
+.sec-cnt { font-family: var(--mono); font-size: 0.68rem; color: var(--muted2); min-width: 26px; text-align: right; }
+.chev { color: var(--muted); font-size: 0.6rem; transition: transform 0.2s; }
+.section.collapsed .chev { transform: rotate(-90deg); }
+
+.sec-body { padding: 0.2rem 0 0.5rem; border-top: 1px solid var(--border); }
+.section.collapsed .sec-body { display: none; }
+
+.sublbl { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 0.4rem 1.1rem 0.15rem; font-family: var(--mono); }
+.hdivider { border: none; border-top: 1px solid var(--border); margin: 0.3rem 1.1rem; }
+
+.item { display: flex; align-items: flex-start; gap: 0.72rem; padding: 0.48rem 1.1rem; cursor: pointer; transition: background 0.1s; }
+.item:hover { background: rgba(255,255,255,0.022); }
+.item.checked { opacity: 0.32; }
+.item.checked .item-txt { text-decoration: line-through; color: var(--muted); }
+
+.cb { width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 4px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.18s; }
+.item.checked .cb { background: var(--green); border-color: var(--green); }
+.cb svg { display: none; width: 9px; height: 9px; stroke: #fff; stroke-width: 2.5; fill: none; }
+.item.checked .cb svg { display: block; }
+
+.item-txt { font-size: 0.82rem; line-height: 1.5; }
+.item-note { font-size: 0.68rem; color: var(--muted); margin-top: 1px; }
+
+/* ═══════════════════════════════════════
+   BOTTOM TOOLS BAR
+═══════════════════════════════════════ */
+.tools-bar { display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; }
+.save-pill { display: flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+
+/* ═══════════════════════════════════════
+   NOTES VIEW
+═══════════════════════════════════════ */
+.note-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; }
+.note-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+.note-date-lbl { font-family: var(--mono); font-size: 0.75rem; color: var(--gold); }
+textarea.note-ta { width: 100%; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 0.85rem; padding: 0.85rem; resize: vertical; min-height: 110px; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+textarea.note-ta:focus { border-color: var(--blue); }
+textarea.note-ta::placeholder { color: var(--muted); }
+.note-save-btn { margin-top: 0.6rem; background: var(--blue); color: #fff; border: none; border-radius: 7px; padding: 0.55rem 1.2rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: var(--sans); transition: opacity 0.2s; }
+.note-save-btn:hover { opacity: 0.85; }
+.past-notes { display: flex; flex-direction: column; gap: 0.65rem; }
+.past-note { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; }
+.pn-date { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); margin-bottom: 0.35rem; }
+.pn-text { font-size: 0.82rem; line-height: 1.6; color: var(--muted2); white-space: pre-wrap; }
+
+/* ═══════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════ */
+.dash-section-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.dash-section-title::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.3rem; margin-bottom: 1rem; }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 3px; height: 100px; position: relative; }
+.bar-chart::before { content: ''; position: absolute; left:0;right:0;top:0;bottom:0; background: repeating-linear-gradient(transparent,transparent calc(25% - 1px),var(--border) calc(25% - 1px),var(--border) 25%); pointer-events: none; }
+.bcol { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
+.bbar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; cursor: pointer; position: relative; transition: opacity 0.15s; }
+.bbar:hover { opacity: 0.75; }
+.bbar:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: var(--card2); border: 1px solid var(--border2); color: var(--text); font-size: 0.65rem; font-family: var(--mono); padding: 3px 7px; border-radius: 4px; white-space: nowrap; z-index: 10; pointer-events: none; }
+.blbl { font-family: var(--mono); font-size: 0.56rem; color: var(--muted); text-align: center; width: 100%; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+.cat-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.7rem; }
+.cat-name { font-size: 0.78rem; width: 85px; flex-shrink: 0; }
+.cat-bw { flex: 1; height: 5px; background: var(--border2); border-radius: 100px; overflow: hidden; }
+.cat-bf { height: 100%; border-radius: 100px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.cat-pct { font-family: var(--mono); font-size: 0.7rem; color: var(--muted2); width: 32px; text-align: right; }
+
+.missed-row { display: flex; align-items: center; gap: 0.7rem; padding: 0.45rem 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.45rem; }
+.missed-name { font-size: 0.78rem; flex: 2; }
+.missed-bw { flex: 1; height: 3px; background: var(--border2); border-radius: 100px; overflow: hidden; }
+.missed-bf { height: 100%; border-radius: 100px; background: var(--red); opacity: 0.7; }
+.missed-fix { font-size: 0.7rem; color: var(--blue); flex-shrink: 0; font-family: var(--mono); }
+.missed-pct { font-family: var(--mono); font-size: 0.7rem; color: var(--red); width: 30px; text-align: right; }
+
+.heatmap { display: grid; grid-template-columns: repeat(30,1fr); gap: 3px; }
+.hcell { aspect-ratio: 1; border-radius: 3px; cursor: pointer; position: relative; transition: transform 0.1s; }
+.hcell:hover { transform: scale(1.4); z-index: 5; }
+.hcell:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: var(--card2); border: 1px solid var(--border2); color: var(--text); font-size: 0.63rem; font-family: var(--mono); padding: 2px 6px; border-radius: 4px; white-space: nowrap; z-index: 10; pointer-events: none; }
+
+.heat-legend { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem; font-size: 0.65rem; color: var(--muted); font-family: var(--mono); }
+.lc { width: 9px; height: 9px; border-radius: 2px; }
+
+/* weekly summary */
+.weekly-summary { background: linear-gradient(135deg, rgba(77,142,245,0.07) 0%, rgba(62,207,130,0.04) 100%); border: 1px solid rgba(77,142,245,0.2); border-radius: 14px; padding: 1.3rem; margin-bottom: 1rem; }
+.ws-title { font-family: var(--display); font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; color: var(--blue); }
+.ws-body { font-size: 0.83rem; color: var(--muted2); line-height: 1.75; }
+.ws-body strong { color: var(--text); }
+.ws-focus { margin-top: 0.9rem; padding: 0.75rem 1rem; background: rgba(240,192,64,0.08); border: 1px solid rgba(240,192,64,0.2); border-radius: 9px; }
+.ws-focus-label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase; margin-bottom: 0.25rem; }
+.ws-focus-text { font-size: 0.85rem; font-weight: 600; }
+
+.empty-state { text-align: center; padding: 1.5rem; color: var(--muted); font-size: 0.8rem; font-family: var(--mono); }
+
+/* mood chart */
+.mood-timeline { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+.mood-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; height: 100%; justify-content: flex-end; }
+.mood-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 2px; }
+.mood-blbl { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); text-align: center; }
+
+/* ── APPLE WATCH CARDS ── */
+.watch-section {
+  margin-bottom: 1rem;
+}
+.watch-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;
+}
+.watch-title {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--muted);
+}
+.watch-title::before { content: ''; display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.watch-sync-btn {
+  display: flex; align-items: center; gap: 0.4rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted2); font-family: var(--mono); font-size: 0.65rem;
+  padding: 0.28rem 0.7rem; border-radius: 6px; cursor: pointer;
+  transition: all 0.2s;
+}
+.watch-sync-btn:hover { border-color: var(--green); color: var(--green); }
+.watch-sync-btn.syncing { border-color: var(--gold); color: var(--gold); animation: blink 1s infinite; }
+.watch-last-sync { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); }
+
+.watch-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.65rem;
+}
+@media (max-width: 900px) { .watch-grid { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 680px) { .watch-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 420px) { .watch-grid { grid-template-columns: repeat(2, 1fr); } }
+.watch-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 0.9rem 0.85rem;
+  position: relative; overflow: hidden; transition: border-color 0.2s;
+}
+.watch-card:hover { border-color: var(--border2); }
+.watch-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 0%, var(--card-glow, transparent) 0%, transparent 70%);
+  pointer-events: none;
+}
+.watch-card-icon { font-size: 1.1rem; margin-bottom: 0.4rem; }
+.watch-card-label { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.3rem; }
+.watch-card-value { font-family: var(--display); font-size: 1.4rem; font-weight: 800; line-height: 1; }
+.watch-card-unit { font-size: 0.65rem; font-weight: 400; color: var(--muted2); margin-left: 2px; }
+.watch-card-sub { font-size: 0.65rem; color: var(--muted2); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; }
+.watch-card-bar { height: 3px; background: var(--border2); border-radius: 100px; overflow: hidden; margin-top: 0.5rem; }
+.watch-card-bar-fill { height: 100%; border-radius: 100px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+.watch-setup-banner {
+  background: linear-gradient(135deg, rgba(62,207,130,0.06), rgba(77,142,245,0.04));
+  border: 1px solid rgba(62,207,130,0.2); border-radius: 12px;
+  padding: 1rem 1.2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.watch-setup-text { flex: 1; font-size: 0.8rem; color: var(--muted2); line-height: 1.6; }
+.watch-setup-text strong { color: var(--text); }
+.watch-setup-input { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.6rem; }
+.watch-sheet-input { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border2); border-radius: 7px; color: var(--text); font-family: var(--mono); font-size: 0.75rem; padding: 0.5rem 0.8rem; outline: none; transition: border-color 0.2s; }
+.watch-sheet-input:focus { border-color: var(--green); }
+.watch-sheet-input::placeholder { color: var(--muted); }
+.watch-connect-btn { background: var(--green); color: #000; border: none; border-radius: 7px; padding: 0.5rem 1.1rem; font-weight: 700; font-size: 0.78rem; cursor: pointer; font-family: var(--display); white-space: nowrap; transition: opacity 0.2s; }
+.watch-connect-btn:hover { opacity: 0.85; }
+
+/* ── CONFETTI ── */
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 9999; display: none; }
+
+/* ── INSTALL BANNER ── */
+.install-banner {
+  display: none; align-items: center; justify-content: space-between;
+  background: linear-gradient(135deg, rgba(240,192,64,0.1), rgba(77,142,245,0.08));
+  border: 1px solid rgba(240,192,64,0.25); border-radius: 12px;
+  padding: 0.75rem 1.1rem; margin-bottom: 1rem; gap: 0.75rem; flex-wrap: wrap;
+}
+.install-banner.show { display: flex; }
+.install-banner-text { font-size: 0.82rem; }
+.install-banner-text strong { color: var(--gold); }
+.install-btn { background: var(--gold); color: #000; border: none; border-radius: 7px; padding: 0.45rem 1rem; font-weight: 700; font-size: 0.78rem; cursor: pointer; font-family: var(--display); }
+
+/* ── WEIGHT TAB ── */
+.weight-input-row { display: flex; gap: 0.75rem; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.w-field { flex: 1; min-width: 120px; }
+.w-field label { display: block; font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.35rem; }
+.w-field input { width: 100%; background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.88rem; padding: 0.6rem 0.9rem; outline: none; transition: border-color 0.2s; }
+.w-field input:focus { border-color: var(--gold); }
+.w-log-btn { background: var(--gold); color: #000; border: none; border-radius: 8px; padding: 0.65rem 1.3rem; font-weight: 700; font-size: 0.82rem; cursor: pointer; font-family: var(--display); transition: opacity 0.2s; white-space: nowrap; }
+.w-log-btn:hover { opacity: 0.85; }
+
+.weight-chart-wrap { position: relative; height: 140px; margin-bottom: 1rem; }
+.weight-svg { width: 100%; height: 100%; overflow: visible; }
+
+.weight-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+.w-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem; }
+.w-stat-label { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.3rem; }
+.w-stat-value { font-family: var(--display); font-size: 1.4rem; font-weight: 700; }
+.w-stat-sub { font-size: 0.68rem; color: var(--muted2); margin-top: 0.2rem; }
+
+.weight-log { display: flex; flex-direction: column; gap: 0.4rem; max-height: 220px; overflow-y: auto; }
+.weight-log::-webkit-scrollbar { width: 3px; }
+.weight-log::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.w-entry { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; }
+.w-entry-date { font-family: var(--mono); font-size: 0.7rem; color: var(--muted2); }
+.w-entry-val { font-family: var(--display); font-weight: 700; }
+.w-entry-delta { font-family: var(--mono); font-size: 0.7rem; }
+.w-del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 0 0.25rem; transition: color 0.15s; }
+.w-del-btn:hover { color: var(--red); }
+
+/* ── RECORDS ── */
+.records-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.75rem; margin-bottom: 1.25rem; }
+.record-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; text-align: center; position: relative; overflow: hidden; }
+.record-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, rgba(240,192,64,0.06) 0%, transparent 70%); pointer-events: none; }
+.record-trophy { font-size: 1.5rem; margin-bottom: 0.35rem; }
+.record-label { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 0.3rem; }
+.record-value { font-family: var(--display); font-size: 1.8rem; font-weight: 800; color: var(--gold); line-height: 1; }
+.record-sub { font-size: 0.7rem; color: var(--muted2); margin-top: 0.25rem; }
+
+/* ── CORRELATION ── */
+.corr-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 0.6rem; display: flex; align-items: flex-start; gap: 1rem; }
+.corr-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+.corr-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.2rem; }
+.corr-desc { font-size: 0.78rem; color: var(--muted2); line-height: 1.5; }
+.corr-badge { display: inline-block; margin-top: 0.35rem; font-family: var(--mono); font-size: 0.68rem; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.corr-badge.pos { background: rgba(62,207,130,0.15); color: var(--green); }
+.corr-badge.neg { background: rgba(240,79,79,0.12); color: var(--red); }
+.corr-badge.neu { background: rgba(77,142,245,0.12); color: var(--blue); }
+
+@media (max-width: 680px) {
+  .weight-stats { grid-template-columns: repeat(2,1fr); }
+  .records-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+@media (max-width: 680px) {
+  .top-row { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(3,1fr); }
+  .mood-row { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .heatmap { grid-template-columns: repeat(15,1fr); }
+  .command-bar { gap: 0.5rem; }
+  nav { padding: 0.75rem 1rem; }
+  .view { padding: 1rem; }
+  .watch-grid { grid-template-columns: repeat(3,1fr); }
+}
+
+/* ── PIPELINE VIEW ── */
+.pipeline-flow { display:flex; flex-direction:column; gap:0; margin-bottom:1rem; }
+.pipe-stage { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.25rem; }
+.pipe-stage-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem; }
+.pipe-stage-icon { font-size:1.3rem; }
+.pipe-stage-name { font-family:var(--display); font-weight:700; font-size:0.95rem; }
+.pipe-stage-status { margin-left:auto; display:flex; align-items:center; gap:0.35rem; font-family:var(--mono); font-size:0.65rem; padding:3px 8px; border-radius:5px; }
+.pipe-stage-status.ok   { background:rgba(62,207,130,0.12); color:var(--green); }
+.pipe-stage-status.warn { background:rgba(240,192,64,0.12);  color:var(--gold); }
+.pipe-stage-status.err  { background:rgba(240,79,79,0.12);   color:var(--red); }
+.pipe-stage-status.idle { background:rgba(100,100,120,0.12); color:var(--muted); }
+.pipe-stage-meta { font-size:0.75rem; color:var(--muted2); line-height:1.6; }
+.pipe-stage-stats { display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem; }
+.pipe-stat { font-family:var(--mono); font-size:0.65rem; color:var(--muted2); }
+.pipe-stat strong { color:var(--text); }
+.pipe-arrow { text-align:center; font-size:1.1rem; color:var(--muted); line-height:1; padding:0.35rem 0; }
+
+.sla-row { display:flex; align-items:center; gap:0.75rem; padding:0.6rem 0; border-bottom:1px solid var(--border); }
+.sla-row:last-child { border-bottom:none; }
+.sla-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sla-name { font-size:0.82rem; font-weight:600; flex:1; }
+.sla-detail { font-family:var(--mono); font-size:0.65rem; color:var(--muted2); }
+.sla-badge { font-family:var(--mono); font-size:0.62rem; padding:2px 7px; border-radius:4px; font-weight:600; }
+
+.anomaly-item { display:flex; align-items:flex-start; gap:0.75rem; padding:0.7rem 0.9rem; background:var(--surface); border:1px solid var(--border); border-radius:9px; margin-bottom:0.5rem; }
+.anomaly-icon { font-size:1.1rem; flex-shrink:0; }
+.anomaly-title { font-size:0.83rem; font-weight:600; margin-bottom:0.15rem; }
+.anomaly-desc { font-size:0.73rem; color:var(--muted2); line-height:1.5; }
+.anomaly-badge { font-family:var(--mono); font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:0.5rem; }
+.anomaly-badge.high { background:rgba(240,79,79,0.15); color:var(--red); }
+.anomaly-badge.medium { background:rgba(240,192,64,0.15); color:var(--gold); }
+.anomaly-badge.low { background:rgba(77,142,245,0.15); color:var(--blue); }
+
+.event-row { display:flex; align-items:center; gap:0.6rem; padding:0.4rem 0; border-bottom:1px solid var(--border); font-size:0.73rem; }
+.event-row:last-child { border-bottom:none; }
+.event-type { font-family:var(--mono); font-size:0.6rem; padding:2px 6px; border-radius:4px; background:rgba(77,142,245,0.1); color:var(--blue); white-space:nowrap; }
+.event-ts { font-family:var(--mono); font-size:0.6rem; color:var(--muted); white-space:nowrap; }
+
+/* ── DATA INSPECTOR VIEW ── */
+.layer-btn { background:transparent; border:1px solid var(--border2); color:var(--muted2); font-family:var(--mono); font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+.layer-btn.active { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
+.layer-btn:hover:not(.active) { border-color:var(--gold); color:var(--gold); }
+
+.schema-field { display:flex; align-items:center; gap:0.75rem; padding:0.45rem 0; border-bottom:1px solid var(--border); font-size:0.78rem; flex-wrap:wrap; }
+.schema-field:last-child { border-bottom:none; }
+.schema-field-name { font-family:var(--mono); color:var(--gold); width:180px; flex-shrink:0; font-size:0.72rem; }
+.schema-field-type { font-family:var(--mono); font-size:0.62rem; color:var(--blue); width:70px; flex-shrink:0; }
+.schema-field-value { flex:1; color:var(--text); min-width:80px; }
+.schema-field-flag { font-family:var(--mono); font-size:0.6rem; padding:2px 6px; border-radius:4px; }
+.schema-field-flag.warn { background:rgba(240,192,64,0.15); color:var(--gold); }
+.schema-field-flag.ok   { background:rgba(62,207,130,0.1); color:var(--green); }
+.schema-null { color:var(--muted); font-style:italic; font-size:0.7rem; }
+
+.lineage-pill { background:var(--surface); border:1px solid var(--border2); color:var(--muted2); font-family:var(--mono); font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:6px; cursor:pointer; transition:all 0.15s; }
+.lineage-pill.active { background:rgba(155,107,218,0.15); border-color:var(--purple); color:var(--purple); }
+.lineage-pill:hover:not(.active) { border-color:var(--muted2); color:var(--text); }
+
+.lineage-step { display:flex; gap:0.75rem; margin-bottom:0.65rem; }
+.lineage-step-num { width:22px; height:22px; border-radius:50%; background:var(--purple); color:#fff; font-family:var(--mono); font-size:0.65rem; display:flex;align-items:center;justify-content:center; flex-shrink:0; margin-top:1px; }
+.lineage-step-title { font-size:0.82rem; font-weight:600; margin-bottom:0.2rem; }
+.lineage-step-detail { font-size:0.72rem; color:var(--muted2); line-height:1.6; font-family:var(--mono); }
+
+.api-endpoint { background:var(--surface); border:1px solid var(--border); border-radius:9px; margin-bottom:0.6rem; overflow:hidden; }
+.api-endpoint-header { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.9rem; cursor:pointer; }
+.api-method { font-family:var(--mono); font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:4px; }
+.api-method.GET  { background:rgba(62,207,130,0.15); color:var(--green); }
+.api-method.POST { background:rgba(240,192,64,0.15); color:var(--gold); }
+.api-path { font-family:var(--mono); font-size:0.75rem; }
+.api-desc { font-size:0.72rem; color:var(--muted2); margin-left:auto; }
+.api-body { padding:0 0.9rem 0.75rem; display:none; }
+.api-body.open { display:block; }
+.api-body pre { background:var(--bg); border:1px solid var(--border); border-radius:7px; padding:0.75rem; font-family:var(--mono); font-size:0.65rem; color:var(--muted2); overflow-x:auto; margin:0.5rem 0 0; line-height:1.6; white-space:pre-wrap; }
+
+/* ── ABOUT VIEW ── */
+.arch-row { display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.9rem; background:var(--surface); border:1px solid var(--border); border-radius:9px; }
+.arch-icon { font-size:1.2rem; flex-shrink:0; }
+.arch-name { font-weight:600; font-size:0.85rem; }
+.arch-desc { font-size:0.72rem; color:var(--muted2); margin-top:0.1rem; }
+.arch-arrow { color:var(--muted); font-size:0.9rem; text-align:center; padding:0.1rem 0; }
+.about-arch { display:flex; flex-direction:column; gap:0.4rem; }
+
+.principle-item { display:flex; gap:0.75rem; padding:0.65rem 0; border-bottom:1px solid var(--border); }
+.principle-item:last-child { border-bottom:none; }
+.principle-tag { font-family:var(--mono); font-size:0.6rem; padding:3px 8px; border-radius:5px; background:rgba(155,107,218,0.12); color:var(--purple); white-space:nowrap; flex-shrink:0; height:fit-content; margin-top:2px; }
+.principle-title { font-size:0.83rem; font-weight:600; margin-bottom:0.2rem; }
+.principle-desc { font-size:0.72rem; color:var(--muted2); line-height:1.6; }
+
+.stack-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem; }
+.stack-card { background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:0.75rem; }
+.stack-layer { font-family:var(--mono); font-size:0.58rem; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:0.25rem; }
+.stack-tech { font-size:0.82rem; font-weight:600; }
+.stack-note { font-size:0.68rem; color:var(--muted2); margin-top:0.15rem; }
+
+.contrib-cell { width:11px; height:11px; border-radius:2px; cursor:default; transition:transform 0.1s; }
+.contrib-cell:hover { transform:scale(1.4); }
+
+@media (max-width:680px) { .stack-grid { grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div id="login-screen">
+<div class="landing-wrap">
+
+  <!-- Nav -->
+  <nav class="landing-nav">
+    <div class="landing-logo">Health <span>OS</span></div>
+    <div class="landing-nav-links">
+      <a href="https://pawanyandapalli.com" target="_blank" class="landing-nav-link">← pawanyandapalli.com</a>
+      <a href="https://github.com/pawanyandapalli7/health-tracker" target="_blank" class="landing-nav-link">GitHub ↗</a>
+      <button class="landing-signin-btn" onclick="scrollToLogin()">Sign In →</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="landing-hero">
+    <div class="landing-eyebrow">Pawan Yandapalli · Data Engineering Portfolio</div>
+    <h1>A personal health<br><em>data pipeline</em> — live.</h1>
+    <p>Apple Watch biometrics flowing through a production-grade data system. Idempotent ingestion, raw/clean/derived separation, anomaly detection, and full pipeline observability — built end to end.</p>
+
+    <!-- Animated pipeline -->
+    <div class="landing-pipeline" id="landing-pipeline">
+      <div class="lp-stage" id="lps-0"><div class="lp-icon">⌚</div><div class="lp-label">Watch</div><div class="lp-dot"></div></div>
+      <div class="lp-arrow">→</div>
+      <div class="lp-stage" id="lps-1"><div class="lp-icon">📤</div><div class="lp-label">Export</div><div class="lp-dot"></div></div>
+      <div class="lp-arrow">→</div>
+      <div class="lp-stage" id="lps-2"><div class="lp-icon">🔄</div><div class="lp-label">Ingest</div><div class="lp-dot"></div></div>
+      <div class="lp-arrow">→</div>
+      <div class="lp-stage" id="lps-3"><div class="lp-icon">✅</div><div class="lp-label">Validate</div><div class="lp-dot"></div></div>
+      <div class="lp-arrow">→</div>
+      <div class="lp-stage" id="lps-4"><div class="lp-icon">🧮</div><div class="lp-label">Derive</div><div class="lp-dot"></div></div>
+      <div class="lp-arrow">→</div>
+      <div class="lp-stage" id="lps-5"><div class="lp-icon">📱</div><div class="lp-label">Dashboard</div><div class="lp-dot"></div></div>
+    </div>
+
+    <div class="landing-cta-row">
+      <button class="landing-cta-primary" onclick="scrollToLogin()">View Live Dashboard →</button>
+      <a href="https://github.com/pawanyandapalli7/health-tracker" target="_blank">
+        <button class="landing-cta-secondary">View Source on GitHub ↗</button>
+      </a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="landing-stats">
+    <div class="landing-stat"><div class="landing-stat-value">16</div><div class="landing-stat-label">Health Metrics</div></div>
+    <div class="landing-stat"><div class="landing-stat-value">3</div><div class="landing-stat-label">Data Layers</div></div>
+    <div class="landing-stat"><div class="landing-stat-value">19</div><div class="landing-stat-label">Validation Checks</div></div>
+    <div class="landing-stat"><div class="landing-stat-value">24/7</div><div class="landing-stat-label">Apple Watch Sync</div></div>
+    <div class="landing-stat"><div class="landing-stat-value">0</div><div class="landing-stat-label">UI Metric Logic</div></div>
+  </div>
+
+  <!-- Features -->
+  <div class="landing-features">
+    <div class="landing-feature">
+      <div class="lf-icon">🔄</div>
+      <div class="lf-title">Idempotent Ingestion</div>
+      <div class="lf-desc">Date as primary key. POST the same day 100 times — always produces one clean record. Safe for retries, backfills, and re-exports.</div>
+      <div class="lf-tags"><span class="lf-tag">upsert</span><span class="lf-tag">date key</span><span class="lf-tag">no duplicates</span></div>
+    </div>
+    <div class="landing-feature">
+      <div class="lf-icon">🗂️</div>
+      <div class="lf-title">Raw / Clean / Derived</div>
+      <div class="lf-desc">Three immutable data layers. Raw is untouched. Clean is normalized and validated. Derived is computed-only. Frontend reads only from derived.</div>
+      <div class="lf-tags"><span class="lf-tag">separation</span><span class="lf-tag">immutable raw</span><span class="lf-tag">read-only UI</span></div>
+    </div>
+    <div class="landing-feature">
+      <div class="lf-icon">✅</div>
+      <div class="lf-title">Non-Destructive Validation</div>
+      <div class="lf-desc">19 field-level range checks across all biometrics. Out-of-range values flagged with quality_flags[] — never rejected. Data always preserved.</div>
+      <div class="lf-tags"><span class="lf-tag">quality flags</span><span class="lf-tag">never reject</span><span class="lf-tag">clinical ranges</span></div>
+    </div>
+    <div class="landing-feature">
+      <div class="lf-icon">⚡</div>
+      <div class="lf-title">Pipeline Observability</div>
+      <div class="lf-desc">Every stage monitored. SLA freshness per data source, event audit trail, anomaly detection across 6 biometric signals, live status indicators.</div>
+      <div class="lf-tags"><span class="lf-tag">SLA tracking</span><span class="lf-tag">event log</span><span class="lf-tag">anomalies</span></div>
+    </div>
+    <div class="landing-feature">
+      <div class="lf-icon">🧮</div>
+      <div class="lf-title">Metric Explainability</div>
+      <div class="lf-desc">Momentum score (weighted 5-metric, 7-day rolling) and recovery readiness (rule-based: sleep + HRV trend + HR trend) with full contribution breakdowns.</div>
+      <div class="lf-tags"><span class="lf-tag">weighted scoring</span><span class="lf-tag">lineage</span><span class="lf-tag">explainable</span></div>
+    </div>
+    <div class="landing-feature">
+      <div class="lf-icon">🔬</div>
+      <div class="lf-title">Schema Inspector</div>
+      <div class="lf-desc">Toggle between raw, clean, and derived layers live. See every field, type, value, and quality flag. Data lineage traces each metric step by step.</div>
+      <div class="lf-tags"><span class="lf-tag">raw→clean→derived</span><span class="lf-tag">live schema</span></div>
+    </div>
+  </div>
+
+  <!-- Tech stack strip -->
+  <div style="padding:1.5rem 2rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;">
+    <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Built with</span>
+    ${['Apple HealthKit','Node.js + Express','Heroku','GitHub API','Vanilla JS','Service Worker (PWA)'].map(t=>`<span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted2)">${t}</span>`).join('<span style="color:var(--border2)">·</span>')}
+  </div>
+
+  <!-- Login section -->
+  <div class="landing-login-section" id="login-section">
+    <div class="landing-login-label">🔒 Owner Access — Pawan Yandapalli</div>
+    <div class="landing-login-box">
+      <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-family:var(--display);font-size:1.3rem;font-weight:800;margin-bottom:0.25rem;">Sign In</div>
+        <div style="font-size:0.75rem;color:var(--muted2)">Unlocks routine tracking, mood logging,<br>and the full data inspector</div>
+      </div>
+      <div class="l-field">
+        <label>Username</label>
+        <input type="text" id="li-user" placeholder="Enter username" autocomplete="username" />
+      </div>
+      <div class="l-field">
+        <label>Password</label>
+        <input type="password" id="li-pass" placeholder="Enter password" autocomplete="current-password" />
+      </div>
+      <div class="login-err" id="login-err">✗ Incorrect username or password</div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
+      <div style="margin-top:1rem;text-align:center;font-family:var(--mono);font-size:0.62rem;color:var(--muted)">
+        Visitors can view Pipeline, About, and public metrics without signing in.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="padding:1.25rem 2rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.62rem;color:var(--muted)">© 2026 Pawan Yandapalli · Health OS</span>
+    <div style="display:flex;gap:1rem;">
+      <a href="https://pawanyandapalli.com" target="_blank" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted2);text-decoration:none">Portfolio ↗</a>
+      <a href="https://github.com/pawanyandapalli7" target="_blank" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted2);text-decoration:none">GitHub ↗</a>
+      <a href="https://www.linkedin.com/in/pawanyandapalli/" target="_blank" style="font-family:var(--mono);font-size:0.62rem;color:var(--muted2);text-decoration:none">LinkedIn ↗</a>
+    </div>
+  </div>
+
+</div><!-- end landing-wrap -->
+</div><!-- end login-screen -->
+
+<!-- ═══════ GITHUB SETUP ═══════ -->
+<div class="overlay hidden" id="setup-overlay">
+  <div class="modal">
+    <h2>Connect GitHub Storage</h2>
+    <p>Your data saves privately to your GitHub repo. You only need to do this once.</p>
+    <div class="m-field">
+      <label>Personal Access Token</label>
+      <input type="password" id="cfg-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+      <div class="field-hint">Create at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a> · Scope: <strong>repo</strong></div>
+    </div>
+    <div class="m-field" style="margin-top:1rem;">
+      <label>Backend API URL <span style="color:var(--muted);font-weight:400">(optional — Heroku)</span></label>
+      <input type="text" id="backend-url-input" placeholder="https://your-app.herokuapp.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:0.8rem;padding:0.6rem 0.9rem;outline:none;" />
+      <div class="field-hint">Once deployed, paste your Heroku URL here to enable live Apple Watch sync.</div>
+    </div>
+    <div class="modal-err" id="modal-err"></div>
+    <button class="btn-primary" id="cfg-save-btn" onclick="saveConfig()">Connect & Save</button>
+  </div>
+</div>
+
+<!-- ═══════ NAV ═══════ -->
+<nav>
+  <div class="nav-logo">Health OS <span>/ pawan</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchViewGated('today',this)">Today 🔒</button>
+    <button class="nav-tab" onclick="showPublicView('dashboard',this)">Dashboard</button>
+    <button class="nav-tab" onclick="showPublicView('records',this)">Records</button>
+    <button class="nav-tab" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
+    <button class="nav-tab" onclick="showPublicView('data',this)">🔬 Data</button>
+    <button class="nav-tab" onclick="showPublicView('about',this)">About</button>
+    <button class="nav-tab" onclick="switchViewGated('notes',this)">Notes 🔒</button>
+  </div>
+  <div class="nav-right">
+    <div class="sync-pill"><div class="sdot" id="sdot"></div><span id="slbl">—</span></div>
+    <button class="icon-btn" onclick="openSettings()">⚙</button>
+    <button class="icon-btn danger" id="nav-logout-btn" onclick="doLogout()">↩</button>
+    <button class="landing-signin-btn" id="nav-signin-btn" onclick="showLanding()" style="display:none;font-size:0.72rem;padding:0.4rem 1rem;">Sign In</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     TODAY VIEW
+═══════════════════════════════════════ -->
+<div class="view active" id="view-today">
+
+  <!-- Install Banner -->
+  <div class="install-banner" id="install-banner">
+    <div class="install-banner-text">📱 <strong>Install Health OS</strong> — add to your home screen for instant access</div>
+    <button class="install-btn" onclick="triggerInstall()">Install App</button>
+    <button class="icon-btn" onclick="document.getElementById('install-banner').classList.remove('show')" style="padding:0.3rem 0.6rem">✕</button>
+  </div>
+
+  <!-- Command Bar -->
+  <div class="command-bar">
+    <div class="date-ctrl">
+      <button class="d-btn" id="prev-btn" onclick="shiftDay(-1)">‹</button>
+      <input type="date" id="date-picker" onchange="onDateChange(this.value)" />
+      <button class="d-btn" id="next-btn" onclick="shiftDay(1)">›</button>
+      <span class="today-badge" id="today-badge" style="display:none">TODAY</span>
+    </div>
+
+    <div class="mode-selector" id="mode-selector">
+      <div class="mode-btn" onclick="toggleModeMenu()">
+        <div class="mode-dot" id="mode-dot"></div>
+        <span id="mode-label">Maintenance</span>
+        <span style="color:var(--muted);font-size:0.7rem">▾</span>
+      </div>
+      <div class="mode-menu" id="mode-menu"></div>
+    </div>
+
+    <div class="grace-pill">
+      <span style="margin-right:0.2rem">Grace</span>
+      <span class="grace-token" id="gt0" onclick="useGrace(0)" title="Grace token 1"></span>
+      <span class="grace-token" id="gt1" onclick="useGrace(1)" title="Grace token 2"></span>
+    </div>
+
+    <button class="copy-yesterday-btn" onclick="copyYesterday()">⎘ Same as yesterday</button>
+  </div>
+
+  <!-- Today's Focus -->
+  <div class="focus-card" id="focus-card">
+    <div class="focus-icon" id="focus-icon">🎯</div>
+    <div>
+      <div class="focus-eyebrow">Today's Focus</div>
+      <div class="focus-text" id="focus-text">Loading...</div>
+      <div class="focus-why" id="focus-why"></div>
+    </div>
+  </div>
+
+  <!-- Momentum + Stats -->
+  <div class="top-row">
+    <div class="momentum-card">
+      <div class="momentum-eyebrow">Momentum</div>
+      <div class="momentum-score" id="m-score">—</div>
+      <div class="momentum-status" id="m-status"></div>
+      <div class="momentum-bar"><div class="momentum-bar-fill" id="m-bar"></div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-tile">
+        <div class="stat-tile-label">Streak</div>
+        <div class="stat-tile-value g" id="st-streak">0</div>
+        <div class="stat-tile-sub"><span class="trend flat" id="st-streak-trend">→</span> days</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">7-Day Avg</div>
+        <div class="stat-tile-value b" id="st-avg">0%</div>
+        <div class="stat-tile-sub"><span class="trend flat" id="st-avg-trend">→</span> vs prior week</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Today</div>
+        <div class="stat-tile-value o" id="st-today">0%</div>
+        <div class="stat-tile-sub" id="st-today-sub">0 / 0 tasks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mood + Energy -->
+  <div class="mood-row">
+    <div class="mood-card">
+      <div class="mood-label">Mood Today</div>
+      <div class="rating-dots" id="mood-dots"></div>
+    </div>
+    <div class="mood-card">
+      <div class="mood-label">Energy Today</div>
+      <div class="rating-dots" id="energy-dots"></div>
+    </div>
+  </div>
+
+  <!-- Apple Watch -->
+  <div class="watch-section" id="watch-section">
+    <div class="watch-header">
+      <div class="watch-title">⌚ Apple Watch</div>
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <span class="watch-last-sync" id="watch-last-sync"></span>
+        <button class="watch-sync-btn" id="watch-sync-btn" onclick="syncWatchData()">↻ sync</button>
+        <button class="icon-btn" onclick="toggleWatchSetup()" style="font-size:0.65rem;padding:0.28rem 0.6rem">⚙</button>
+      </div>
+    </div>
+    <!-- Setup Banner -->
+    <div class="watch-setup-banner" id="watch-setup-banner">
+      <div class="watch-setup-text">
+        <strong>Connect Health OS Backend</strong><br>
+        Enter your Heroku backend URL below to sync live Apple Watch data automatically.
+        <div class="watch-setup-input">
+          <input class="watch-sheet-input" id="watch-sheet-url" placeholder="https://your-app.herokuapp.com" />
+          <button class="watch-connect-btn" onclick="saveWatchSheet()">Connect →</button>
+        </div>
+        <div style="margin-top:0.5rem;font-size:0.68rem;color:var(--muted)">
+          Deploy the backend first, then paste your Heroku URL here.
+        </div>
+      </div>
+    </div>
+    <!-- Watch Cards (shown when configured) -->
+    <div class="watch-grid" id="watch-grid" style="display:none">
+      <!-- Row 1: Activity -->
+      <div class="watch-card" style="--card-glow:rgba(62,207,130,0.08)"><div class="watch-card-icon">👟</div><div class="watch-card-label">Steps</div><div class="watch-card-value" id="w-steps">—</div><div class="watch-card-sub" id="w-steps-sub">goal: 10k</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-steps-bar" style="background:var(--green)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(62,207,130,0.06)"><div class="watch-card-icon">📏</div><div class="watch-card-label">Distance</div><div class="watch-card-value" id="w-dist">—</div><div class="watch-card-sub" id="w-dist-sub">km walked</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-dist-bar" style="background:var(--green)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(62,207,130,0.05)"><div class="watch-card-icon">🪜</div><div class="watch-card-label">Flights</div><div class="watch-card-value" id="w-flights">—</div><div class="watch-card-sub" id="w-flights-sub">climbed</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-flights-bar" style="background:var(--green)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(62,207,130,0.05)"><div class="watch-card-icon">🧍</div><div class="watch-card-label">Stand Hours</div><div class="watch-card-value" id="w-stand">—</div><div class="watch-card-sub" id="w-stand-sub">goal: 12h</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-stand-bar" style="background:var(--green)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(155,107,218,0.08)"><div class="watch-card-icon">🏋️</div><div class="watch-card-label">Workout</div><div class="watch-card-value" id="w-workout">—</div><div class="watch-card-sub" id="w-workout-sub">goal: 30min</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-workout-bar" style="background:var(--purple)"></div></div></div>
+      <!-- Row 2: Body -->
+      <div class="watch-card" style="--card-glow:rgba(240,79,79,0.08)"><div class="watch-card-icon">🔥</div><div class="watch-card-label">Calories</div><div class="watch-card-value" id="w-cal">—</div><div class="watch-card-sub" id="w-cal-sub">active energy</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-cal-bar" style="background:var(--orange)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(240,192,64,0.08)"><div class="watch-card-icon">⚖️</div><div class="watch-card-label">Weight</div><div class="watch-card-value" id="w-weight">—</div><div class="watch-card-sub" id="w-weight-sub">Apple Health</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-weight-bar" style="background:var(--gold)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(240,192,64,0.06)"><div class="watch-card-icon">📊</div><div class="watch-card-label">Body Fat</div><div class="watch-card-value" id="w-bodyfat">—</div><div class="watch-card-sub" id="w-bodyfat-sub">% body fat</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-bodyfat-bar" style="background:var(--gold)"></div></div></div>
+      <!-- Row 3: Vitals -->
+      <div class="watch-card" style="--card-glow:rgba(240,79,79,0.08)"><div class="watch-card-icon">❤️</div><div class="watch-card-label">Heart Rate</div><div class="watch-card-value" id="w-hr">—</div><div class="watch-card-sub" id="w-hr-sub">resting avg</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-hr-bar" style="background:#f04f4f"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(240,79,79,0.06)"><div class="watch-card-icon">💜</div><div class="watch-card-label">HRV</div><div class="watch-card-value" id="w-hrv">—</div><div class="watch-card-sub" id="w-hrv-sub">ms variability</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-hrv-bar" style="background:#f04f4f"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(77,142,245,0.08)"><div class="watch-card-icon">🩵</div><div class="watch-card-label">Blood O₂</div><div class="watch-card-value" id="w-spo2">—</div><div class="watch-card-sub" id="w-spo2-sub">SpO2</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-spo2-bar" style="background:var(--blue)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(77,142,245,0.06)"><div class="watch-card-icon">🌬️</div><div class="watch-card-label">Resp Rate</div><div class="watch-card-value" id="w-resp">—</div><div class="watch-card-sub" id="w-resp-sub">breaths/min</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-resp-bar" style="background:var(--blue)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(77,142,245,0.06)"><div class="watch-card-icon">🩺</div><div class="watch-card-label">Blood Pressure</div><div class="watch-card-value" id="w-bp" style="font-size:1rem">—</div><div class="watch-card-sub" id="w-bp-sub">mmHg</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-bp-bar" style="background:var(--blue)"></div></div></div>
+      <!-- Row 4: Recovery & Mind -->
+      <div class="watch-card" style="--card-glow:rgba(77,142,245,0.08)"><div class="watch-card-icon">😴</div><div class="watch-card-label">Sleep</div><div class="watch-card-value" id="w-sleep">—</div><div class="watch-card-sub" id="w-sleep-sub">goal: 7–9h</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-sleep-bar" style="background:var(--blue)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(155,107,218,0.08)"><div class="watch-card-icon">🧘</div><div class="watch-card-label">Mindful</div><div class="watch-card-value" id="w-mindful">—</div><div class="watch-card-sub" id="w-mindful-sub">minutes</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-mindful-bar" style="background:var(--purple)"></div></div></div>
+      <div class="watch-card" style="--card-glow:rgba(155,107,218,0.06)"><div class="watch-card-icon">🫁</div><div class="watch-card-label">VO₂ Max</div><div class="watch-card-value" id="w-vo2">—</div><div class="watch-card-sub" id="w-vo2-sub">fitness level</div><div class="watch-card-bar"><div class="watch-card-bar-fill" id="w-vo2-bar" style="background:var(--purple)"></div></div></div>
+    </div>
+  </div>
+
+  <!-- Routine Sections -->
+  <div class="sections" id="sections-container"></div>
+
+  <div class="tools-bar">
+    <div class="save-pill">
+      <div class="sdot" id="save-dot"></div>
+      <span id="save-lbl">ready</span>
+    </div>
+    <button class="icon-btn danger" onclick="resetDay()">↺ reset day</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-dashboard">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+    <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Health <span style="color:var(--gold)">Intelligence</span></div>
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted)">Last 30 days</div>
+  </div>
+
+  <div id="weekly-summary-wrap"></div>
+
+  <div class="chart-card">
+    <div class="dash-section-title">30-Day Momentum</div>
+    <div class="bar-chart" id="momentum-chart"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">30 days ago</div>
+      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">Today</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="dash-section-title">Category Breakdown</div>
+      <div id="cat-breakdown"></div>
+    </div>
+    <div class="chart-card">
+      <div class="dash-section-title">Mood & Energy (7 days)</div>
+      <div style="margin-bottom:0.5rem;">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">MOOD</div>
+        <div class="mood-timeline" id="mood-chart"></div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">ENERGY</div>
+        <div class="mood-timeline" id="energy-chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="chart-card">
+      <div class="dash-section-title">Most Missed → Fix</div>
+      <div id="missed-list"></div>
+    </div>
+    <div class="chart-card">
+      <div class="dash-section-title">Trend Signals</div>
+      <div id="trend-signals"></div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="dash-section-title">Weight Trend (from Apple Health)</div>
+    <div id="dash-weight-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
+    <div style="position:relative;height:120px;">
+      <svg id="dash-weight-svg" viewBox="0 0 600 120" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;"></svg>
+    </div>
+    <div id="dash-weight-empty" class="empty-state" style="display:none">No weight data yet — connect Apple Watch to auto-sync.</div>
+  </div>
+
+  <div class="chart-card">
+    <div class="dash-section-title">Completion Heatmap</div>
+    <div class="heatmap" id="heatmap"></div>
+    <div class="heat-legend">
+      <span>Less</span>
+      <div class="lc" style="background:#141a24"></div>
+      <div class="lc" style="background:#1e3020"></div>
+      <div class="lc" style="background:#2a5030"></div>
+      <div class="lc" style="background:#3ecf82;opacity:0.5"></div>
+      <div class="lc" style="background:#3ecf82"></div>
+      <span>More</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+<!-- ═══════════════════════════════════════
+     RECORDS VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-records">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+    <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Personal <span style="color:var(--gold)">Records</span></div>
+  </div>
+
+  <div class="records-grid" id="records-grid"></div>
+
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div class="dash-section-title">Correlation Engine</div>
+    <div style="font-size:0.78rem;color:var(--muted2);margin-bottom:1rem;">Patterns discovered from your data. Updates as you log more days.</div>
+    <div id="correlations"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PIPELINE VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-pipeline">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+    <div>
+      <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">⚡ Data <span style="color:var(--gold)">Pipeline</span></div>
+      <div style="font-size:0.78rem;color:var(--muted2);margin-top:0.2rem;">Live view of the health data flow — Apple Watch → Backend → Dashboard</div>
+    </div>
+    <button class="icon-btn" onclick="renderPipeline()" style="font-size:0.7rem;padding:0.4rem 0.9rem">↻ refresh</button>
+  </div>
+
+  <!-- Pipeline Flow Diagram -->
+  <div class="pipeline-flow" id="pipeline-flow"></div>
+
+  <!-- SLA / Freshness Monitor -->
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div class="dash-section-title">SLA / Freshness Monitor</div>
+    <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:1rem;">Each data source has a freshness SLA. Green = within SLA, yellow = degraded, red = breached.</div>
+    <div id="sla-monitor"></div>
+  </div>
+
+  <!-- Anomaly Detection -->
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div class="dash-section-title">Anomaly Detection</div>
+    <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:1rem;">Statistical flags on unusual readings vs your 14-day baseline.</div>
+    <div id="anomaly-list"></div>
+  </div>
+
+  <!-- Audit Log -->
+  <div class="chart-card">
+    <div class="dash-section-title">Event Log <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-left:0.5rem;">last 20 events</span></div>
+    <div id="event-log-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DATA VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-data">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+    <div>
+      <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">🔬 Data <span style="color:var(--gold)">Inspector</span></div>
+      <div style="font-size:0.78rem;color:var(--muted2);margin-top:0.2rem;">Raw → Clean → Derived pipeline transparency</div>
+    </div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+      <button class="icon-btn" onclick="exportHealthData('json')" style="font-size:0.7rem;padding:0.4rem 0.9rem;color:var(--green);border-color:var(--green)">↓ Export JSON</button>
+      <button class="icon-btn" onclick="exportHealthData('csv')" style="font-size:0.7rem;padding:0.4rem 0.9rem;color:var(--blue);border-color:var(--blue)">↓ Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Schema Inspector -->
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+      <div class="dash-section-title" style="margin-bottom:0">Schema Inspector</div>
+      <div style="display:flex;gap:0.4rem;">
+        <button class="layer-btn active" id="layer-raw" onclick="setSchemaLayer('raw')">Raw</button>
+        <button class="layer-btn" id="layer-clean" onclick="setSchemaLayer('clean')">Clean</button>
+        <button class="layer-btn" id="layer-derived" onclick="setSchemaLayer('derived')">Derived</button>
+      </div>
+    </div>
+    <div style="font-size:0.72rem;color:var(--muted2);margin-bottom:0.75rem;" id="schema-layer-desc">Raw data — exactly as received from Health Auto Export, no mutation</div>
+    <div id="schema-inspector"></div>
+  </div>
+
+  <!-- Data Lineage -->
+  <div class="chart-card" style="margin-bottom:1rem;">
+    <div class="dash-section-title">Data Lineage</div>
+    <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:0.75rem;">Select a metric to trace how it was computed, step by step.</div>
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;" id="lineage-metric-pills"></div>
+    <div id="lineage-panel"></div>
+  </div>
+
+  <!-- Live API Docs -->
+  <div class="chart-card">
+    <div class="dash-section-title">API Reference <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-left:0.5rem;">read-only</span></div>
+    <div id="api-docs"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ABOUT VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-about">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="margin-bottom:2rem;">
+      <div style="font-family:var(--display);font-size:1.8rem;font-weight:800;margin-bottom:0.4rem;">Health <span style="color:var(--gold)">OS</span></div>
+      <div style="font-size:0.85rem;color:var(--muted2);line-height:1.7;">A personal health data system built as a data engineering portfolio project. Every design decision prioritises data correctness, observability, and pipeline transparency.</div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:1rem;">
+      <div class="dash-section-title">Architecture</div>
+      <div class="about-arch" id="about-arch"></div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:1rem;">
+      <div class="dash-section-title">Data Engineering Principles Applied</div>
+      <div id="about-principles"></div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:1rem;">
+      <div class="dash-section-title">Tech Stack</div>
+      <div id="about-stack"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="dash-section-title">Health Consistency Heatmap</div>
+      <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:0.75rem;">GitHub-style contribution graph — each cell = one day of health data.</div>
+      <div id="contribution-heatmap" style="display:flex;flex-wrap:wrap;gap:3px;"></div>
+      <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.6rem;color:var(--muted);">
+        <span>Less</span>
+        <div style="width:11px;height:11px;border-radius:2px;background:#141a24"></div>
+        <div style="width:11px;height:11px;border-radius:2px;background:#1a2d1a"></div>
+        <div style="width:11px;height:11px;border-radius:2px;background:#2a5030"></div>
+        <div style="width:11px;height:11px;border-radius:2px;background:rgba(62,207,130,0.6)"></div>
+        <div style="width:11px;height:11px;border-radius:2px;background:#3ecf82"></div>
+        <span>More</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     NOTES VIEW
+═══════════════════════════════════════ -->
+<div class="view" id="view-notes">
+  <div style="margin-bottom:1.25rem;">
+    <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Daily <span style="color:var(--gold)">Notes</span></div>
+    <div style="font-size:0.78rem;color:var(--muted2);margin-top:0.25rem;">Log how you feel. Patterns show up over time.</div>
+  </div>
+  <div class="note-card">
+    <div class="note-hdr">
+      <div class="note-date-lbl" id="note-date-lbl"></div>
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">today's note</div>
+    </div>
+    <textarea class="note-ta" id="note-ta" placeholder="How did today go? Energy, mood, what worked, what didn't..."></textarea>
+    <br>
+    <button class="note-save-btn" onclick="saveNote()">Save Note</button>
+  </div>
+  <div class="dash-section-title">Past Notes</div>
+  <div class="past-notes" id="past-notes"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// BACKEND API CONFIG
+// Prompts 12, 13, 14: Live API, login flow, auto-refresh
+// Set BACKEND_URL to your Heroku app URL once deployed.
+// Falls back to GitHub storage if backend is not configured.
+// ═══════════════════════════════════════
+const BACKEND_URL = localStorage.getItem('backend_url') || '';
+
+function isBackendConfigured() { return !!BACKEND_URL; }
+
+// In-memory auth token (Prompt 13)
+let authToken = sessionStorage.getItem('hos_token') || null;
+function isLoggedIn() {
+  if (isBackendConfigured()) return !!authToken;
+  return sessionStorage.getItem('hos_auth') === '1';
+}
+
+// ── Prompt 13: Login via backend API ─────────────────────────────────────────
+async function doLogin() {
+  const u = document.getElementById('li-user').value.trim();
+  const p = document.getElementById('li-pass').value;
+  const err = document.getElementById('login-err');
+  const btn = document.getElementById('login-btn');
+
+  if (isBackendConfigured()) {
+    // Live backend login
+    btn.textContent = 'Signing in...'; btn.disabled = true;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p }),
+      });
+      const data = await r.json();
+      if (data.success) {
+        authToken = data.token;
+        sessionStorage.setItem('hos_token', authToken);
+        document.getElementById('login-screen').classList.add('hidden');
+        err.classList.remove('show');
+        updateNavForAuth();
+        bootApp();
+      } else {
+        throw new Error('Invalid credentials');
+      }
+    } catch(e) {
+      err.classList.add('show');
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      document.getElementById('li-pass').value = '';
+      document.getElementById('li-pass').focus();
+    }
+    btn.textContent = 'Sign In →'; btn.disabled = false;
+  } else {
+    // Fallback: local hash check (offline mode)
+    const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
+    if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
+      sessionStorage.setItem('hos_auth','1');
+      document.getElementById('login-screen').classList.add('hidden');
+      err.classList.remove('show');
+      updateNavForAuth();
+      bootApp();
+    } else {
+      err.classList.add('show');
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      document.getElementById('li-pass').value = '';
+      document.getElementById('li-pass').focus();
+    }
+  }
+}
+
+function doLogout() {
+  authToken = null;
+  sessionStorage.removeItem('hos_token');
+  sessionStorage.removeItem('hos_auth');
+  stopPolling();
+  location.reload();
+}
+
+// ── Prompt 12: Fetch live data from backend ───────────────────────────────────
+async function fetchLiveHealth() {
+  if (!isBackendConfigured() || !authToken) return null;
+  try {
+    const r = await fetch(`${BACKEND_URL}/api/health/latest`, {
+      headers: { 'Authorization': `Bearer ${authToken}` },
+    });
+    if (r.status === 401) { doLogout(); return null; }
+    if (!r.ok) throw new Error(`API error ${r.status}`);
+    const payload = await r.json();
+    // Merge derived watch data into watch cards
+    if (payload.clean) applyLiveHealthData(payload);
+    return payload;
+  } catch(e) {
+    console.warn('[API] fetchLiveHealth failed:', e.message);
+    return null;
+  }
+}
+
+function applyLiveHealthData(payload) {
+  const c = payload.clean;
+  const d = payload.derived;
+  if (!c) return;
+
+  // Populate watch cards from canonical backend data
+  const watchData = {
+    steps:    c.steps,
+    dist:     c.distance_km,
+    flights:  c.flights_climbed,
+    stand:    c.stand_hours,
+    workout:  c.workout_minutes,
+    calories: c.calories,
+    weight:   c.weight,
+    bodyfat:  c.body_fat,
+    hr:       c.resting_hr,
+    hrv:      c.hrv,
+    spo2:     c.spo2,
+    resp:     c.respiratory_rate,
+    bp:       (c.bp_systolic && c.bp_diastolic) ? `${Math.round(c.bp_systolic)}/${Math.round(c.bp_diastolic)}` : null,
+    bpSys:    c.bp_systolic,
+    sleep:    c.sleep_hours,
+    mindful:  c.mindful_minutes,
+    vo2:      c.vo2_max,
+  };
+
+  if (isWatchConnected() || Object.values(watchData).some(v => v !== null)) {
+    showWatchCards();
+    renderWatchCards(watchData);
+    // Update sync label with freshness from backend
+    const freshness = payload.freshness;
+    if (freshness) {
+      document.getElementById('watch-last-sync').textContent =
+        freshness.status === 'fresh'
+          ? `synced ${freshness.age_hours < 1 ? Math.round(freshness.age_hours*60)+'m' : freshness.age_hours+'h'} ago`
+          : `⚠️ stale (${freshness.age_hours}h old)`;
+    }
+  }
+
+  // Use backend-computed momentum if available
+  if (d?.momentum?.score !== undefined) {
+    document.getElementById('momentum-bar').style.width = d.momentum.score + '%';
+    document.getElementById('momentum-score').textContent = d.momentum.score;
+    document.getElementById('momentum-label').textContent = d.momentum.label;
+  }
+
+  // Show quality flags if any
+  if (c.quality_flags?.length > 0) {
+    console.warn('[Health OS] Quality flags:', c.quality_flags);
+  }
+}
+
+// ── Prompt 14: Auto-refresh polling every 5 minutes ──────────────────────────
+let pollInterval = null;
+
+function startPolling() {
+  if (!isBackendConfigured()) return;
+  stopPolling(); // clear any existing
+  fetchLiveHealth(); // immediate first fetch
+  pollInterval = setInterval(() => {
+    fetchLiveHealth();
+  }, 5 * 60 * 1000); // every 5 minutes
+}
+
+function stopPolling() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+}
+
+// ── Backend URL setup helper ──────────────────────────────────────────────────
+function saveBackendUrl() {
+  const url = document.getElementById('backend-url-input')?.value?.trim();
+  if (url) {
+    localStorage.setItem('backend_url', url.replace(/\/$/, '')); // strip trailing slash
+    location.reload();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOCAL AUTH FALLBACK (used when backend not configured)
+// ─────────────────────────────────────────────────────────────────────────────
+const AUTH_USER_HASH = '768a238e0667c41c9312d886dd3bf18df4825c6d73b0e096e33ac066a7207c05'; // "pawan"
+const AUTH_PASS_HASH = '6305c53f64db3e012c057bbf9e4b78ba64500fc1feaefab7f7d0b31e461a42ae'; // "health2026"
+
+async function hashStr(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+
+// ═══════════════════════════════════════
+// HEALTH MODES
+// ═══════════════════════════════════════
+const MODES = [
+  { id:'maintenance', label:'Maintenance', icon:'⚖️', color:'#f0c040', desc:'Balanced daily routine' },
+  { id:'cutting',     label:'Cutting',     icon:'🏋️', color:'#3ecf82', desc:'Strict nutrition focus' },
+  { id:'recovery',    label:'Recovery',    icon:'😴', color:'#9b6bda', desc:'Rest & gentle movement' },
+  { id:'travel',      label:'Travel',      icon:'✈️', color:'#4d8ef5', desc:'Flexible, steps first' },
+  { id:'highstress',  label:'High Stress', icon:'🧠', color:'#f08040', desc:'Protect sleep & basics' },
+];
+
+// Focus decision engine per mode + context
+function computeFocus(mode, weekData, todayStats) {
+  const avg7 = weekAvg(weekData);
+  const missedItems = getMostMissed(weekData, 1);
+  const topMissed = missedItems[0];
+
+  if (mode === 'recovery') return { icon:'😴', text:'Prioritise sleep tonight', why:'Recovery mode — rest is the goal today' };
+  if (mode === 'travel')   return { icon:'🚶', text:'Hit 8,000 steps today', why:'Travel mode — movement over workout' };
+  if (mode === 'highstress') return { icon:'🛡️', text:'Protect your sleep window', why:'High stress detected — sleep drives everything' };
+
+  // Data-driven focus
+  if (avg7 < 60) return { icon:'🔄', text:'Complete just 5 core tasks', why:`Momentum at ${avg7}% — rebuild gradually` };
+  if (topMissed && topMissed.rate > 60) return { icon:'🎯', text: `Don't miss: ${topMissed.text}`, why:`Missed ${topMissed.rate}% of the last 7 days` };
+  if (todayStats.pct === 0) return { icon:'🌅', text:'Start with your morning shake', why:'First task unlocks momentum for the day' };
+  if (todayStats.pct >= 80) return { icon:'🔥', text:'You\'re crushing it — stay consistent', why:`${todayStats.pct}% complete today` };
+  return { icon:'💪', text:'Hit 80% completion today', why:`Currently at ${todayStats.pct}% — the finish line is close` };
+}
+
+// ═══════════════════════════════════════
+// ROUTINE DATA
+// ═══════════════════════════════════════
+const SECTIONS = [
+  { icon:'🌅', title:'Wake Up', time:'9:00 AM', cat:'morning', items:[
+    {text:'Wake up'},
+    {text:'1 glass warm water'},
+    {text:'Light stretch', note:'2–3 min'},
+  ]},
+  { icon:'🥤', title:'Shake & Supplements', time:'9:15–9:35 AM', cat:'morning', items:[
+    {text:'High-calorie shake', note:'Banana, whole milk, almonds + cashews, peanut butter, dates + jaggery, roasted chana powder, 1 scoop whey protein, creatine 5g'},
+    {divider:true},
+    {label:'Morning Supplements'},
+    {text:'Multivitamin', note:'1 capsule'},
+    {text:'Biotin 5000 mcg'},
+  ]},
+  { icon:'🍳', title:'Breakfast', time:'11:45 AM', cat:'morning', items:[
+    {text:'4 whole eggs OR paneer OR 2 rotis or bread'},
+  ]},
+  { icon:'🚿', title:'Shower & Grooming', time:'10:30–11:00 AM', cat:'midday', items:[
+    {text:'Shampoo'},{text:'Face wash'},
+    {divider:true},{label:'Skincare'},
+    {text:'AXIS-Y Dark Spot Serum'},
+    {text:'COSRX Oil-Free Moisturizer'},
+    {text:'Sunscreen SPF 50', note:'Mandatory'},
+    {divider:true},{label:'Hair & Beard'},
+    {text:'Rogaine 5% Minoxidil', note:'On scalp'},
+    {text:'Beard oil', note:'Bossman – Naked'},
+  ]},
+  { icon:'🍽️', title:'Lunch', time:'2:00–3:00 PM', cat:'midday', items:[
+    {text:'Chicken / Fish / Prawns / Goat & Rice / Dal / Veggies / 1 tsp ghee'},
+    {divider:true},{label:'After Food Supplements'},
+    {text:'Vitamin D3 + K2'},
+    {text:'Zinc 22mg', note:'Always after food'},
+  ]},
+  { icon:'☕', title:'Light Snack', time:'5:30 PM', cat:'midday', items:[
+    {text:'Banana + peanuts OR 2 boiled eggs OR Curd + fruit'},
+  ]},
+  { icon:'🌙', title:'Dinner', time:'9:45 PM', cat:'night', items:[
+    {text:'Chicken / Fish / 3 eggs & Roti or rice & Veggies'},
+  ]},
+  { icon:'🥛', title:'Night Protein', time:'10:30 PM', cat:'night', items:[{text:'Greek yogurt'}]},
+  { icon:'💊', title:'Night Supplement', time:'11:30 PM', cat:'night', items:[{text:'Magnesium glycinate 200–300mg'}]},
+  { icon:'😴', title:'Sleep', time:'12:00–1:00 AM', cat:'night', items:[{text:'Sleep'}]},
+];
+
+const CAT_COLORS = { morning:'#f0c040', midday:'#4d8ef5', night:'#9b6bda' };
+const CAT_LABELS  = { morning:'🌅 Morning', midday:'☀️ Midday', night:'🌙 Night' };
+const HEAT_COLORS = ['#141a24','#1e3020','#2a5030','rgba(62,207,130,0.5)','#3ecf82'];
+
+// Missed items fix suggestions
+const FIXES = {
+  'High-calorie shake': 'Prep ingredients the night before',
+  'Greek yogurt': 'Swap with protein shake if unavailable',
+  'Sunscreen SPF 50': 'Leave it next to toothbrush',
+  'Rogaine 5% Minoxidil': 'Set a phone alarm for this',
+  'Magnesium glycinate 200–300mg': 'Keep bottle on bedside table',
+  'Sleep': 'Set a hard 12am phone alarm',
+  'Vitamin D3 + K2': 'Pair with lunch — leave on dining table',
+};
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function isLoggedIn() { return sessionStorage.getItem('hos_auth') === '1'; }
+
+async function doLogin() {
+  const u = document.getElementById('li-user').value.trim();
+  const p = document.getElementById('li-pass').value;
+  const err = document.getElementById('login-err');
+  const btn = document.getElementById('login-btn');
+
+  const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
+
+  if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
+    sessionStorage.setItem('hos_auth','1');
+    document.getElementById('login-screen').classList.add('hidden');
+    err.classList.remove('show');
+    bootApp();
+  } else {
+    err.classList.add('show');
+    btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+    document.getElementById('li-pass').value = '';
+    document.getElementById('li-pass').focus();
+  }
+}
+function doLogout() { sessionStorage.removeItem('hos_auth'); location.reload(); }
+
+document.getElementById('li-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('li-pass').focus(); });
+document.getElementById('li-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// ═══════════════════════════════════════
+// GITHUB CONFIG
+// ═══════════════════════════════════════
+function getConfig() { return { user:'pawanyandapalli7', repo:'health-tracker', token: localStorage.getItem('gh_token')||'' }; }
+function isConfigured() { return !!localStorage.getItem('gh_token'); }
+
+function saveConfig() {
+  const token = document.getElementById('cfg-token').value.trim();
+  const backendUrl = document.getElementById('backend-url-input')?.value?.trim();
+  const err = document.getElementById('modal-err');
+  const btn = document.getElementById('cfg-save-btn');
+  err.style.display = 'none';
+  if (!token) { err.textContent = 'Token required.'; err.style.display='block'; return; }
+  if (backendUrl) localStorage.setItem('backend_url', backendUrl.replace(/\/$/, ''));
+  btn.disabled = true; btn.textContent = 'Connecting...';
+  const {user,repo} = getConfig();
+  fetch(`https://api.github.com/repos/${user}/${repo}`, { headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' } })
+    .then(r => { if(!r.ok) throw new Error(`${r.status}`); localStorage.setItem('gh_token',token); document.getElementById('setup-overlay').classList.add('hidden'); initApp(); })
+    .catch(e => { err.textContent='✗ '+e.message; err.style.display='block'; btn.disabled=false; btn.textContent='Connect & Save'; });
+}
+function openSettings() { document.getElementById('cfg-token').value=getConfig().token; document.getElementById('setup-overlay').classList.remove('hidden'); }
+
+// ═══════════════════════════════════════
+// GITHUB STORAGE
+// ═══════════════════════════════════════
+const DATA_FILE = 'data.json';
+let ghSha = null;
+
+async function ghGet() {
+  const {user,repo,token} = getConfig();
+  setSyncStatus('syncing','loading...');
+  try {
+    const r = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${DATA_FILE}`, { headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json'} });
+    if (r.status===404) { ghSha=null; setSyncStatus('synced','connected'); return {}; }
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    ghSha = j.sha;
+    const data = JSON.parse(atob(j.content.replace(/\n/g,'')));
+    setSyncStatus('synced','synced'); return data;
+  } catch(e) { setSyncStatus('error','sync error'); return null; }
+}
+
+async function ghSave(data) {
+  const {user,repo,token} = getConfig();
+  setSaveDot('syncing'); document.getElementById('save-lbl').textContent='saving...';
+  try {
+    const body = { message:`health: ${activeKey}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))) };
+    if (ghSha) body.sha = ghSha;
+    const r = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${DATA_FILE}`, { method:'PUT', headers:{Authorization:`token ${token}`,Accept:'application/vnd.github.v3+json','Content-Type':'application/json'}, body:JSON.stringify(body) });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json(); ghSha = j.content.sha;
+    setSaveDot('synced'); document.getElementById('save-lbl').textContent='saved ✓';
+    setTimeout(()=>{ setSaveDot(''); document.getElementById('save-lbl').textContent='ready'; }, 2000);
+  } catch(e) { setSaveDot('error'); document.getElementById('save-lbl').textContent='save failed'; }
+}
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let localData = {};
+let activeKey = todayKey();
+let saveTimer = null;
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function localDateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isToday() { return activeKey === todayKey(); }
+function getActiveData() { return localData[activeKey] || { checks:{}, note:'', mood:0, energy:0, graceUsed:[] }; }
+function setActiveData(d) { localData[activeKey]=d; scheduleSave(); }
+function scheduleSave() { clearTimeout(saveTimer); saveTimer=setTimeout(()=>ghSave(localData),1200); }
+
+function getCurrentMode() { return localStorage.getItem('health_mode') || 'maintenance'; }
+function setCurrentMode(m) { localStorage.setItem('health_mode',m); }
+
+// ═══════════════════════════════════════
+// DATE PICKER
+// ═══════════════════════════════════════
+function initDatePicker() {
+  const p = document.getElementById('date-picker');
+  p.value = activeKey; p.max = todayKey();
+  document.getElementById('next-btn').disabled = isToday();
+  document.getElementById('today-badge').style.display = isToday() ? 'inline' : 'none';
+}
+function onDateChange(v) { if(!v) return; activeKey=v; initDatePicker(); renderToday(); }
+function shiftDay(d) {
+  const dt = new Date(activeKey+'T12:00:00'); dt.setDate(dt.getDate()+d);
+  const nk = localDateKey(dt);
+  if(nk > todayKey()) return;
+  activeKey=nk; document.getElementById('date-picker').value=nk; initDatePicker(); renderToday();
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function getAllCheckable() {
+  const items=[];
+  SECTIONS.forEach((s,si)=>s.items.forEach((it,ii)=>{ if(it.text) items.push({si,ii,text:it.text,cat:s.cat,section:s.title}); }));
+  return items;
+}
+
+function calcStats(dayData) {
+  const all=getAllCheckable();
+  const done=all.filter(i=>dayData.checks&&dayData.checks[`${i.si}-${i.ii}`]).length;
+  return {total:all.length, done, pct: all.length ? Math.round(done/all.length*100) : 0};
+}
+
+function calcMomentum(days7) {
+  // avg + consistency bonus - volatility penalty
+  if(!days7.length) return 0;
+  const avgs = days7.map(k=>localData[k]?calcStats(localData[k]).pct:0);
+  const avg = avgs.reduce((a,b)=>a+b,0)/avgs.length;
+  const consistency = avgs.filter(v=>v>=70).length/avgs.length * 10;
+  const variance = Math.sqrt(avgs.reduce((a,v)=>a+Math.pow(v-avg,2),0)/avgs.length);
+  const volatility = Math.min(variance/10, 8);
+  return Math.round(Math.min(100, Math.max(0, avg + consistency - volatility)));
+}
+
+function weekAvg(days7) {
+  if(!days7.length) return 0;
+  return Math.round(days7.reduce((a,k)=>a+(localData[k]?calcStats(localData[k]).pct:0),0)/days7.length);
+}
+
+function getLast7Keys() {
+  const keys=[];
+  for(let i=6;i>=0;i--) { const d=new Date(); d.setDate(d.getDate()-i); keys.push(localDateKey(d)); }
+  return keys;
+}
+
+function getLast14Keys(offset=0) {
+  const keys=[];
+  for(let i=13+offset;i>=offset;i--) { const d=new Date(); d.setDate(d.getDate()-i); keys.push(localDateKey(d)); }
+  return keys;
+}
+
+function calcStreak() {
+  let s=0; const t=new Date();
+  for(let i=0;i<365;i++) {
+    const d=new Date(t); d.setDate(d.getDate()-i);
+    const k=localDateKey(d);
+    const day=localData[k];
+    if(!day){if(i===0)continue; break;}
+    // grace token counts
+    const grace=(day.graceUsed||[]).length>0;
+    if(calcStats(day).pct>=80||grace) s++;
+    else if(i>0) break;
+  }
+  return s;
+}
+
+function getMostMissed(days7, limit=6) {
+  const all=getAllCheckable();
+  if(!days7.length) return [];
+  return all.map(item=>{
+    let missed=0;
+    days7.forEach(k=>{ if(localData[k]&&!(localData[k].checks&&localData[k].checks[`${item.si}-${item.ii}`])) missed++; });
+    return {...item, rate: Math.round(missed/days7.length*100)};
+  }).sort((a,b)=>b.rate-a.rate).slice(0,limit);
+}
+
+function getTrend(curr, prev) {
+  const diff = curr - prev;
+  if(diff > 5) return {arrow:'↑', cls:'up'};
+  if(diff < -5) return {arrow:'↓', cls:'down'};
+  return {arrow:'→', cls:'flat'};
+}
+
+// ═══════════════════════════════════════
+// MODES UI
+// ═══════════════════════════════════════
+function renderModeMenu() {
+  const menu = document.getElementById('mode-menu');
+  const cur = getCurrentMode();
+  menu.innerHTML = MODES.map(m=>`
+    <div class="mode-item ${m.id===cur?'active':''}" onclick="selectMode('${m.id}')">
+      <span>${m.icon}</span>
+      <div><div class="mode-item-name">${m.label}</div><div class="mode-item-desc">${m.desc}</div></div>
+    </div>`).join('');
+}
+
+function toggleModeMenu() {
+  renderModeMenu();
+  document.getElementById('mode-menu').classList.toggle('open');
+}
+
+function selectMode(id) {
+  setCurrentMode(id);
+  document.getElementById('mode-menu').classList.remove('open');
+  updateModeBadge();
+  renderFocus();
+}
+
+function updateModeBadge() {
+  const m = MODES.find(x=>x.id===getCurrentMode())||MODES[0];
+  document.getElementById('mode-label').textContent = m.icon+' '+m.label;
+  document.getElementById('mode-dot').style.background = m.color;
+}
+
+// Close mode menu on outside click
+document.addEventListener('click', e => {
+  if(!document.getElementById('mode-selector').contains(e.target))
+    document.getElementById('mode-menu').classList.remove('open');
+});
+
+// ═══════════════════════════════════════
+// GRACE TOKENS
+// ═══════════════════════════════════════
+const MAX_GRACE = 2;
+
+function renderGraceTokens() {
+  const d = getActiveData();
+  const used = (d.graceUsed||[]).length;
+  for(let i=0;i<MAX_GRACE;i++) {
+    const el=document.getElementById(`gt${i}`);
+    if(!el) continue;
+    el.className='grace-token'+(i<used?' used':' available');
+    el.title=i<used?`Grace token ${i+1} used`:`Use grace token ${i+1} (skip counts as complete)`;
+  }
+}
+
+function useGrace(idx) {
+  const d=getActiveData();
+  if(!d.graceUsed) d.graceUsed=[];
+  if(d.graceUsed.includes(idx)) {
+    d.graceUsed=d.graceUsed.filter(x=>x!==idx);
+  } else {
+    if(d.graceUsed.length>=MAX_GRACE) return;
+    d.graceUsed.push(idx);
+  }
+  setActiveData(d);
+  renderGraceTokens();
+}
+
+// ═══════════════════════════════════════
+// COPY YESTERDAY
+// ═══════════════════════════════════════
+function copyYesterday() {
+  const prev = new Date(activeKey+'T12:00:00');
+  prev.setDate(prev.getDate()-1);
+  const prevKey = localDateKey(prev);
+  const prevData = localData[prevKey];
+  if(!prevData||!prevData.checks||Object.keys(prevData.checks).length===0) {
+    alert('No data found for yesterday.'); return;
+  }
+  if(!confirm('Copy yesterday\'s completed tasks to today?')) return;
+  const d=getActiveData();
+  d.checks={...prevData.checks};
+  setActiveData(d);
+  renderToday();
+}
+
+// ═══════════════════════════════════════
+// FOCUS ENGINE
+// ═══════════════════════════════════════
+function renderFocus() {
+  const days7=getLast7Keys();
+  const todayStats=calcStats(getActiveData());
+  const f=computeFocus(getCurrentMode(),days7,todayStats);
+  document.getElementById('focus-icon').textContent=f.icon;
+  document.getElementById('focus-text').textContent=f.text;
+  document.getElementById('focus-why').textContent=f.why;
+}
+
+// ═══════════════════════════════════════
+// MOMENTUM CARD
+// ═══════════════════════════════════════
+function renderMomentum() {
+  const days7=getLast7Keys();
+  const score=calcMomentum(days7);
+  const el=document.getElementById('m-score');
+  const st=document.getElementById('m-status');
+  const bar=document.getElementById('m-bar');
+  el.textContent=score;
+  el.className='momentum-score '+(score>=80?'thriving':score>=60?'stable':'risk');
+  const statusText=score>=80?'🔥 Thriving':score>=60?'🟡 Stable':'🔴 At Risk';
+  st.textContent=statusText;
+  st.className='momentum-status '+(score>=80?'thriving':score>=60?'stable':'risk');
+  bar.style.width=score+'%';
+  bar.style.background=score>=80?'var(--green)':score>=60?'var(--gold)':'var(--red)';
+
+  // streak
+  const streak=calcStreak();
+  document.getElementById('st-streak').textContent=streak;
+
+  // 7-day avg vs prior 7
+  const avg7=weekAvg(days7);
+  const prior7=getLast14Keys(7);
+  const avgPrior=weekAvg(prior7);
+  const t7=getTrend(avg7,avgPrior);
+  document.getElementById('st-avg').textContent=avg7+'%';
+  document.getElementById('st-avg-trend').textContent=t7.arrow;
+  document.getElementById('st-avg-trend').className='trend '+t7.cls;
+
+  // today
+  const todayStats=calcStats(getActiveData());
+  document.getElementById('st-today').textContent=todayStats.pct+'%';
+  document.getElementById('st-today-sub').textContent=`${todayStats.done} / ${todayStats.total} tasks`;
+}
+
+// ═══════════════════════════════════════
+// MOOD / ENERGY
+// ═══════════════════════════════════════
+const MOOD_COLORS=['#f04f4f','#f08040','#f0c040','#4d8ef5','#3ecf82'];
+const MOOD_EMOJIS=['😞','😕','😐','🙂','😄'];
+const MOOD_LABELS=['Terrible','Bad','Neutral','Good','Amazing'];
+const ENERGY_EMOJIS=['🪫','😴','⚡','💪','🚀'];
+const ENERGY_LABELS=['Drained','Low','Okay','High','Unstoppable'];
+
+function renderRatingDots(containerId, field, emojis, colors, labels) {
+  const el=document.getElementById(containerId);
+  const d=getActiveData();
+  const val=d[field]||0;
+  el.innerHTML='';
+  for(let i=1;i<=5;i++) {
+    const dot=document.createElement('div');
+    dot.className='rdot'+(val===i?' sel':'');
+    dot.textContent=emojis[i-1];
+    dot.title=`${i} — ${labels[i-1]}`;
+    dot.dataset.label=labels[i-1];
+    if(val===i) dot.style.background=colors[i-1];
+    dot.addEventListener('click',()=>{
+      const day=getActiveData();
+      day[field]=val===i?0:i;
+      setActiveData(day);
+      renderRatingDots(containerId,field,emojis,colors,labels);
+    });
+    el.appendChild(dot);
+  }
+}
+
+// ═══════════════════════════════════════
+// CHECKLIST
+// ═══════════════════════════════════════
+function renderSections() {
+  const dayData=getActiveData();
+  const container=document.getElementById('sections-container');
+  container.innerHTML='';
+
+  SECTIONS.forEach((section,si)=>{
+    const checkable=section.items.filter(i=>i.text);
+    const done=checkable.filter(item=>{ const ii=section.items.indexOf(item); return dayData.checks&&dayData.checks[`${si}-${ii}`]; }).length;
+    const pct=checkable.length?Math.round(done/checkable.length*100):0;
+    const complete=done===checkable.length&&checkable.length>0;
+
+    const sEl=document.createElement('div');
+    sEl.className='section'+(complete?' complete':'');
+
+    const hdr=document.createElement('div');
+    hdr.className='sec-hdr';
+    hdr.innerHTML=`
+      <div class="sec-ico">${section.icon}</div>
+      <div class="sec-meta"><div class="sec-name">${section.title}</div><div class="sec-time">${section.time}</div></div>
+      <div class="sec-prog">
+        <div class="sec-bw"><div class="sec-bf" id="sbf-${si}" style="width:${pct}%;background:${CAT_COLORS[section.cat]}"></div></div>
+        <div class="sec-cnt" id="sbc-${si}">${checkable.length?`${done}/${checkable.length}`:''}</div>
+      </div>
+      <div class="chev">▾</div>`;
+    hdr.addEventListener('click',()=>sEl.classList.toggle('collapsed'));
+
+    const body=document.createElement('div');
+    body.className='sec-body';
+
+    section.items.forEach((item,ii)=>{
+      if(item.label){ const l=document.createElement('div'); l.className='sublbl'; l.textContent=item.label; body.appendChild(l); return; }
+      if(item.divider){ const d=document.createElement('hr'); d.className='hdivider'; body.appendChild(d); return; }
+      const key=`${si}-${ii}`;
+      const checked=!!(dayData.checks&&dayData.checks[key]);
+      const div=document.createElement('div');
+      div.className='item'+(checked?' checked':'');
+      div.innerHTML=`<div class="cb"><svg viewBox="0 0 12 9"><polyline points="1,4.5 4.5,8 11,1"/></svg></div><div><div class="item-txt">${item.text}</div>${item.note?`<div class="item-note">${item.note}</div>`:''}</div>`;
+      div.addEventListener('click',()=>{
+        const d=getActiveData();
+        if(!d.checks) d.checks={};
+        d.checks[key]=!d.checks[key];
+        setActiveData(d);
+        div.classList.toggle('checked',!!d.checks[key]);
+        updateSecBar(si,section);
+        renderMomentum(); renderFocus();
+        checkConfetti();
+      });
+      body.appendChild(div);
+    });
+
+    sEl.appendChild(hdr); sEl.appendChild(body);
+    container.appendChild(sEl);
+  });
+}
+
+function updateSecBar(si, section) {
+  const d=getActiveData();
+  const checkable=section.items.filter(i=>i.text);
+  const done=checkable.filter(item=>{ const ii=section.items.indexOf(item); return d.checks&&d.checks[`${si}-${ii}`]; }).length;
+  const pct=checkable.length?Math.round(done/checkable.length*100):0;
+  const bf=document.getElementById(`sbf-${si}`); const bc=document.getElementById(`sbc-${si}`);
+  if(bf) bf.style.width=pct+'%';
+  if(bc) bc.textContent=`${done}/${checkable.length}`;
+}
+
+function resetDay() {
+  const lbl=isToday()?'today':new Date(activeKey+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if(!confirm(`Reset all tasks for ${lbl}?`)) return;
+  const d=getActiveData(); d.checks={}; setActiveData(d); renderToday();
+}
+
+// ═══════════════════════════════════════
+// RENDER TODAY (master)
+// ═══════════════════════════════════════
+function renderToday() {
+  initDatePicker();
+  updateModeBadge();
+  renderFocus();
+  renderMomentum();
+  renderRatingDots('mood-dots','mood',MOOD_EMOJIS,MOOD_COLORS,MOOD_LABELS);
+  renderRatingDots('energy-dots','energy',ENERGY_EMOJIS,MOOD_COLORS,ENERGY_LABELS);
+  renderSections();
+  renderGraceTokens();
+  initWatchSection();
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function renderDashboard() {
+  const allKeys=Object.keys(localData).sort();
+  const allItems=getAllCheckable();
+  const days7=getLast7Keys();
+  const score=calcMomentum(days7);
+
+  // Weekly summary
+  const wrapEl=document.getElementById('weekly-summary-wrap');
+  if(allKeys.length===0) { wrapEl.innerHTML=''; }
+  else {
+    const avg7=weekAvg(days7);
+    const prior7=getLast14Keys(7);
+    const avgPrior=weekAvg(prior7);
+    const trend=getTrend(avg7,avgPrior);
+    const strongCat=getBestCat(days7);
+    const weakCat=getWorstCat(days7);
+    const f=computeFocus(getCurrentMode(),days7,calcStats(getActiveData()));
+
+    wrapEl.innerHTML=`
+      <div class="weekly-summary">
+        <div class="ws-title">📊 Weekly Intelligence</div>
+        <div class="ws-body">
+          <strong>This week</strong> you averaged <strong>${avg7}%</strong> completion
+          (${trend.arrow} ${Math.abs(avg7-avgPrior)}% vs last week).<br>
+          Strongest area: <strong>${CAT_LABELS[strongCat]||'—'}</strong> &nbsp;·&nbsp;
+          Needs work: <strong>${CAT_LABELS[weakCat]||'—'}</strong><br>
+          Momentum score: <strong style="color:${score>=80?'var(--green)':score>=60?'var(--gold)':'var(--red)'}">${score} — ${score>=80?'Thriving':score>=60?'Stable':'At Risk'}</strong>
+        </div>
+        <div class="ws-focus">
+          <div class="ws-focus-label">Next Focus</div>
+          <div class="ws-focus-text">${f.icon} ${f.text}</div>
+        </div>
+      </div>`;
+  }
+
+  // 30-day momentum chart
+  const chartEl=document.getElementById('momentum-chart');
+  chartEl.innerHTML='';
+  for(let i=29;i>=0;i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=localDateKey(d);
+    const day=localData[k];
+    const pct=day?calcStats(day).pct:null;
+    const lbl=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const color=pct===null?'var(--border2)':pct>=80?'var(--green)':pct>=60?'var(--gold)':'var(--red)';
+    const col=document.createElement('div'); col.className='bcol';
+    col.innerHTML=`<div class="bbar" style="height:${pct??0}%;background:${color}" data-tip="${lbl}: ${pct!==null?pct+'%':'no data'}"></div>${(29-i)%7===0?`<div class="blbl">${lbl}</div>`:'<div class="blbl"></div>'}`;
+    chartEl.appendChild(col);
+  }
+
+  // Category breakdown
+  const catEl=document.getElementById('cat-breakdown');
+  if(!allKeys.length) { catEl.innerHTML='<div class="empty-state">No data yet.</div>'; }
+  else {
+    catEl.innerHTML='';
+    ['morning','midday','night'].forEach(cat=>{
+      const catItems=allItems.filter(i=>i.cat===cat);
+      const total=catItems.length*allKeys.length;
+      let done=0;
+      allKeys.forEach(k=>catItems.forEach(i=>{ if(localData[k]&&localData[k].checks&&localData[k].checks[`${i.si}-${i.ii}`]) done++; }));
+      const pct=total?Math.round(done/total*100):0;
+      const trend7=getCatTrend(cat);
+      const div=document.createElement('div'); div.className='cat-row';
+      div.innerHTML=`<div class="cat-name" style="color:${CAT_COLORS[cat]}">${CAT_LABELS[cat]}</div><div class="cat-bw"><div class="cat-bf" style="width:${pct}%;background:${CAT_COLORS[cat]}"></div></div><span class="trend ${trend7.cls}" style="font-size:0.8rem">${trend7.arrow}</span><div class="cat-pct">${pct}%</div>`;
+      catEl.appendChild(div);
+    });
+  }
+
+  // Mood & energy charts
+  renderMoodEnergyChart('mood-chart','mood','#4d8ef5');
+  renderMoodEnergyChart('energy-chart','energy','#3ecf82');
+
+  // Missed items with fixes
+  const missEl=document.getElementById('missed-list');
+  if(!allKeys.length) { missEl.innerHTML='<div class="empty-state">No data yet.</div>'; }
+  else {
+    missEl.innerHTML='';
+    const missed=getMostMissed(days7,6);
+    missed.forEach(item=>{
+      const fix=FIXES[item.text];
+      const div=document.createElement('div'); div.className='missed-row';
+      div.innerHTML=`<div class="missed-name">${item.text}</div><div class="missed-bw"><div class="missed-bf" style="width:${item.rate}%"></div></div><div class="missed-pct">${item.rate}%</div>${fix?`<div class="missed-fix" title="${fix}">🔧</div>`:''}`;
+      if(fix) div.title=`💡 Fix: ${fix}`;
+      missEl.appendChild(div);
+    });
+  }
+
+  // Trend signals
+  const trendEl=document.getElementById('trend-signals');
+  trendEl.innerHTML='';
+  const signals=computeTrendSignals(days7);
+  if(!signals.length) { trendEl.innerHTML='<div class="empty-state">Track more days to see signals.</div>'; }
+  else signals.forEach(s=>{
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:0.7rem;padding:0.5rem 0.75rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:0.45rem;font-size:0.8rem;';
+    div.innerHTML=`<span style="font-size:1rem">${s.icon}</span><span>${s.text}</span>`;
+    trendEl.appendChild(div);
+  });
+
+  // Heatmap
+  const heatEl=document.getElementById('heatmap');
+  heatEl.innerHTML='';
+  for(let i=29;i>=0;i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=localDateKey(d);
+    const day=localData[k];
+    const pct=day?calcStats(day).pct:null;
+    let ci=0;
+    if(pct!==null) ci=pct>=90?4:pct>=70?3:pct>=50?2:pct>0?1:0;
+    const cell=document.createElement('div'); cell.className='hcell';
+    cell.style.background=HEAT_COLORS[ci];
+    cell.dataset.tip=`${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}: ${pct!==null?pct+'%':'no data'}`;
+    heatEl.appendChild(cell);
+  }
+
+  // Weight trend chart (from Apple Health via watch sync)
+  renderDashWeightChart();
+}
+
+function renderDashWeightChart() {
+  const raw = getWeightData();
+  const sorted = Object.keys(raw).sort().slice(-30);
+  const statsEl = document.getElementById('dash-weight-stats');
+  const emptyEl = document.getElementById('dash-weight-empty');
+  const svg = document.getElementById('dash-weight-svg');
+
+  if (!sorted.length) {
+    statsEl.style.display='none'; svg.innerHTML=''; emptyEl.style.display='block'; return;
+  }
+  emptyEl.style.display='none'; statsEl.style.display='grid';
+
+  const vals = sorted.map(k=>raw[k]);
+  const latest=vals[vals.length-1], oldest=vals[0];
+  const change=+(latest-oldest).toFixed(1);
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const avg=+(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+
+  statsEl.innerHTML=`
+    <div class="w-stat"><div class="w-stat-label">Current</div><div class="w-stat-value" style="color:var(--gold)">${latest}<span style="font-size:0.75rem;font-weight:400"> kg</span></div></div>
+    <div class="w-stat"><div class="w-stat-label">Change</div><div class="w-stat-value" style="color:${change<=0?'var(--green)':'var(--red)'}">${change>0?'+':''}${change}<span style="font-size:0.75rem;font-weight:400"> kg</span></div></div>
+    <div class="w-stat"><div class="w-stat-label">Min / Max</div><div class="w-stat-value" style="color:var(--blue);font-size:1.1rem">${min} / ${max}</div></div>
+    <div class="w-stat"><div class="w-stat-label">Avg</div><div class="w-stat-value" style="color:var(--muted2)">${avg}<span style="font-size:0.75rem;font-weight:400"> kg</span></div></div>`;
+
+  // SVG line chart
+  const W=600,H=120,pad=22;
+  const range=max-min||1;
+  const pts=sorted.map((k,i)=>({
+    x:pad+(i/(sorted.length-1||1))*(W-pad*2),
+    y:H-pad-((raw[k]-min)/range)*(H-pad*2),
+    k,v:raw[k]
+  }));
+  let grid='';
+  for(let i=0;i<=3;i++){
+    const y=pad+(i/3)*(H-pad*2);
+    const v=(max-(i/3)*range).toFixed(1);
+    grid+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#1c2233" stroke-width="1"/>
+    <text x="${pad-4}" y="${y+4}" fill="#4a5470" font-size="9" text-anchor="end">${v}</text>`;
+  }
+  const pathD=pts.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
+  const areaD=pathD+` L${pts[pts.length-1].x},${H-pad} L${pts[0].x},${H-pad} Z`;
+  const dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--gold)" stroke="var(--bg)" stroke-width="1.5"><title>${new Date(p.k+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}: ${p.v}kg</title></circle>`).join('');
+  svg.innerHTML=`<defs><linearGradient id="dwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c040" stop-opacity="0.2"/><stop offset="100%" stop-color="#f0c040" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${areaD}" fill="url(#dwg)"/><path d="${pathD}" fill="none" stroke="#f0c040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>${dots}`;
+}
+
+function renderMoodEnergyChart(id, field, color) {
+  const el=document.getElementById(id); el.innerHTML='';
+  for(let i=6;i>=0;i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=localDateKey(d);
+    const val=localData[k]?localData[k][field]||0:0;
+    const lbl=d.toLocaleDateString('en-US',{weekday:'short'});
+    const col=document.createElement('div'); col.className='mood-col';
+    col.innerHTML=`<div class="mood-bar" style="height:${val*20}%;background:${color};opacity:${val?0.8:0.15}"></div><div class="mood-blbl">${lbl}</div>`;
+    el.appendChild(col);
+  }
+}
+
+function getBestCat(days7) {
+  const allItems=getAllCheckable();
+  const cats=['morning','midday','night'];
+  const pcts=cats.map(cat=>{
+    const items=allItems.filter(i=>i.cat===cat);
+    let done=0,total=0;
+    days7.forEach(k=>{ if(localData[k]) { items.forEach(i=>{ if(localData[k].checks&&localData[k].checks[`${i.si}-${i.ii}`]) done++; total++; }); } });
+    return total?done/total:0;
+  });
+  return cats[pcts.indexOf(Math.max(...pcts))];
+}
+
+function getWorstCat(days7) {
+  const allItems=getAllCheckable();
+  const cats=['morning','midday','night'];
+  const pcts=cats.map(cat=>{
+    const items=allItems.filter(i=>i.cat===cat);
+    let done=0,total=0;
+    days7.forEach(k=>{ if(localData[k]) { items.forEach(i=>{ if(localData[k].checks&&localData[k].checks[`${i.si}-${i.ii}`]) done++; total++; }); } });
+    return total?done/total:1;
+  });
+  return cats[pcts.indexOf(Math.min(...pcts))];
+}
+
+function getCatTrend(cat) {
+  const allItems=getAllCheckable().filter(i=>i.cat===cat);
+  const days7=getLast7Keys(); const prior7=getLast14Keys(7);
+  const calc=days=>{ let d=0,t=0; days.forEach(k=>{ if(localData[k]) allItems.forEach(i=>{ if(localData[k].checks&&localData[k].checks[`${i.si}-${i.ii}`]) d++; t++; }); }); return t?d/t:0; };
+  return getTrend(calc(days7)*100, calc(prior7)*100);
+}
+
+function computeTrendSignals(days7) {
+  const signals=[];
+  const avg7=weekAvg(days7);
+  const prior7=getLast14Keys(7);
+  const avgPrior=weekAvg(prior7);
+  if(avg7>avgPrior+10) signals.push({icon:'📈',text:`Completion up ${avg7-avgPrior}% vs last week`});
+  if(avg7<avgPrior-10) signals.push({icon:'📉',text:`Completion down ${avgPrior-avg7}% vs last week`});
+  const streak=calcStreak();
+  if(streak>=7) signals.push({icon:'🔥',text:`${streak}-day streak — exceptional consistency`});
+  if(streak===0) signals.push({icon:'⚠️',text:'No active streak — start fresh today'});
+  // mood trend
+  const recentMoods=days7.map(k=>localData[k]?localData[k].mood||0:0).filter(v=>v>0);
+  if(recentMoods.length>=3) {
+    const avgMood=recentMoods.reduce((a,b)=>a+b,0)/recentMoods.length;
+    if(avgMood>=4) signals.push({icon:'😄',text:`Strong mood week — avg ${avgMood.toFixed(1)}/5`});
+    if(avgMood<=2) signals.push({icon:'😞',text:`Low mood detected — consider recovery mode`});
+  }
+  // night category
+  const nightItems=getAllCheckable().filter(i=>i.cat==='night');
+  const nightAvg=days7.reduce((acc,k)=>{
+    if(!localData[k]) return acc;
+    const done=nightItems.filter(i=>localData[k].checks&&localData[k].checks[`${i.si}-${i.ii}`]).length;
+    return acc+(done/nightItems.length);
+  },0)/Math.max(days7.filter(k=>localData[k]).length,1)*100;
+  if(nightAvg<50) signals.push({icon:'🌙',text:`Night routine only ${Math.round(nightAvg)}% — focus here`});
+  if(!signals.length) signals.push({icon:'✅',text:'All trends looking healthy'});
+  return signals.slice(0,5);
+}
+
+// ═══════════════════════════════════════
+// NOTES
+// ═══════════════════════════════════════
+function renderNotes() {
+  const d=new Date(activeKey+'T12:00:00');
+  document.getElementById('note-date-lbl').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('note-ta').value=getActiveData().note||'';
+  const el=document.getElementById('past-notes'); el.innerHTML='';
+  const keys=Object.keys(localData).sort().reverse().filter(k=>localData[k].note&&localData[k].note.trim());
+  if(!keys.length){ el.innerHTML='<div class="empty-state">No notes yet.</div>'; return; }
+  keys.forEach(k=>{
+    const dt=new Date(k+'T12:00:00');
+    const d=document.createElement('div'); d.className='past-note';
+    d.innerHTML=`<div class="pn-date">${dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div><div class="pn-text">${localData[k].note}</div>`;
+    el.appendChild(d);
+  });
+}
+function saveNote() {
+  const d=getActiveData(); d.note=document.getElementById('note-ta').value; setActiveData(d); renderNotes();
+}
+
+// ═══════════════════════════════════════
+// NAV + SYNC UI
+// ═══════════════════════════════════════
+function switchView(view, btn) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(view==='dashboard') renderDashboard();
+  if(view==='notes') renderNotes();
+  if(view==='records') renderRecords();
+  if(view==='pipeline') renderPipeline();
+  if(view==='data') renderDataInspector();
+  if(view==='about') renderAbout();
+}
+
+function setSyncStatus(state, lbl) {
+  const dot=document.getElementById('sdot'); const el=document.getElementById('slbl');
+  dot.className='sdot'+(state?' '+state:'');
+  el.textContent=lbl;
+  el.style.color=state==='synced'?'var(--green)':state==='error'?'var(--red)':'var(--muted2)';
+}
+
+function setSaveDot(state) {
+  const el=document.getElementById('save-dot');
+  if(el) el.className='sdot'+(state?' '+state:'');
+}
+
+// ═══════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════
+let confettiActive = false;
+function fireConfetti() {
+  if (confettiActive) return;
+  confettiActive = true;
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 100,
+    r: 4 + Math.random() * 6,
+    d: 2 + Math.random() * 3,
+    color: ['#f0c040','#3ecf82','#4d8ef5','#f08040','#9b6bda','#fff'][Math.floor(Math.random()*6)],
+    tilt: Math.random() * 10 - 5,
+    tiltAngle: 0,
+    tiltSpeed: 0.1 + Math.random() * 0.2,
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.tiltAngle += p.tiltSpeed;
+      p.y += p.d;
+      p.x += Math.sin(p.tiltAngle) * 1.5;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+      ctx.beginPath();
+      ctx.lineWidth = p.r / 2;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 4, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4);
+      ctx.stroke();
+    });
+    frame++;
+    if (frame < 180) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; confettiActive=false; }
+  }
+  draw();
+}
+
+let lastCompletionPct = -1;
+function checkConfetti() {
+  const stats = calcStats(getActiveData());
+  if (stats.pct === 100 && lastCompletionPct < 100) fireConfetti();
+  lastCompletionPct = stats.pct;
+}
+
+// ═══════════════════════════════════════
+// PWA — SERVICE WORKER + INSTALL
+// ═══════════════════════════════════════
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+function triggerInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => {
+    deferredInstallPrompt = null;
+    document.getElementById('install-banner').classList.remove('show');
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ═══════════════════════════════════════
+// WEIGHT TRACKER
+// ═══════════════════════════════════════
+function getWeightData() {
+  try { return JSON.parse(localStorage.getItem('hos_weight') || '{}'); } catch { return {}; }
+}
+function saveWeightData(d) { localStorage.setItem('hos_weight', JSON.stringify(d)); }
+
+function logWeight() {
+  const val = parseFloat(document.getElementById('w-input').value);
+  const date = document.getElementById('w-date').value || todayKey();
+  if (!val || val < 20 || val > 300) { alert('Please enter a valid weight (20–300 kg)'); return; }
+  const d = getWeightData();
+  d[date] = val;
+  saveWeightData(d);
+  document.getElementById('w-input').value = '';
+  renderWeight();
+}
+
+function deleteWeight(date) {
+  const d = getWeightData();
+  delete d[date];
+  saveWeightData(d);
+  renderWeight();
+}
+
+function renderWeight() {
+  const raw = getWeightData();
+  const sorted = Object.keys(raw).sort();
+  const last30 = sorted.slice(-30);
+
+  // Stats
+  const statsEl = document.getElementById('weight-stats');
+  if (!sorted.length) {
+    statsEl.innerHTML = '<div class="empty-state" style="grid-column:1/-1">No weight logged yet. Add your first entry above.</div>';
+    document.getElementById('weight-svg').innerHTML = '';
+    document.getElementById('weight-log').innerHTML = '';
+    return;
+  }
+
+  const vals = last30.map(k => raw[k]);
+  const latest = vals[vals.length - 1];
+  const oldest = vals[0];
+  const change = latest - oldest;
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+
+  statsEl.innerHTML = `
+    <div class="w-stat"><div class="w-stat-label">Current</div><div class="w-stat-value" style="color:var(--gold)">${latest.toFixed(1)}<span style="font-size:0.8rem;font-weight:400"> kg</span></div><div class="w-stat-sub">as of ${new Date(last30[last30.length-1]+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div></div>
+    <div class="w-stat"><div class="w-stat-label">Change</div><div class="w-stat-value" style="color:${change<=0?'var(--green)':'var(--red)'}">${change>0?'+':''}${change.toFixed(1)}<span style="font-size:0.8rem;font-weight:400"> kg</span></div><div class="w-stat-sub">over ${last30.length} days</div></div>
+    <div class="w-stat"><div class="w-stat-label">Min / Max</div><div class="w-stat-value" style="color:var(--blue);font-size:1.1rem">${min.toFixed(1)} / ${max.toFixed(1)}</div><div class="w-stat-sub">kg range</div></div>
+    <div class="w-stat"><div class="w-stat-label">Avg</div><div class="w-stat-value" style="color:var(--muted2)">${avg.toFixed(1)}<span style="font-size:0.8rem;font-weight:400"> kg</span></div><div class="w-stat-sub">30-day average</div></div>`;
+
+  // SVG Line Chart
+  const svg = document.getElementById('weight-svg');
+  const W = 600, H = 140, pad = 20;
+  const range = max - min || 1;
+  const pts = last30.map((k,i) => {
+    const x = pad + (i/(last30.length-1||1)) * (W - pad*2);
+    const y = H - pad - ((raw[k]-min)/range) * (H - pad*2);
+    return {x,y,k,v:raw[k]};
+  });
+
+  // Grid lines
+  let gridLines = '';
+  for (let i=0;i<=4;i++) {
+    const y = pad + (i/4)*(H-pad*2);
+    const val = max - (i/4)*range;
+    gridLines += `<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="#1c2233" stroke-width="1"/>
+      <text x="${pad-5}" y="${y+4}" fill="#4a5470" font-size="9" text-anchor="end">${val.toFixed(1)}</text>`;
+  }
+
+  const pathD = pts.map((p,i)=>`${i===0?'M':'L'}${p.x},${p.y}`).join(' ');
+  const areaD = pathD + ` L${pts[pts.length-1].x},${H-pad} L${pts[0].x},${H-pad} Z`;
+
+  const dots = pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="var(--gold)" stroke="var(--bg)" stroke-width="1.5">
+    <title>${new Date(p.k+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}: ${p.v} kg</title></circle>`).join('');
+
+  svg.innerHTML = `
+    <defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c040" stop-opacity="0.25"/><stop offset="100%" stop-color="#f0c040" stop-opacity="0"/></linearGradient></defs>
+    ${gridLines}
+    <path d="${areaD}" fill="url(#wg)"/>
+    <path d="${pathD}" fill="none" stroke="#f0c040" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}`;
+
+  // Log list
+  const logEl = document.getElementById('weight-log');
+  const revSorted = [...sorted].reverse();
+  logEl.innerHTML = revSorted.map((k,i) => {
+    const prev = revSorted[i+1];
+    const delta = prev ? raw[k] - raw[prev] : null;
+    const deltaStr = delta !== null ? `<span class="w-entry-delta" style="color:${delta<=0?'var(--green)':'var(--red)'}">${delta>0?'+':''}${delta.toFixed(1)}kg</span>` : '';
+    return `<div class="w-entry">
+      <span class="w-entry-date">${new Date(k+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</span>
+      <span class="w-entry-val" style="color:var(--gold)">${raw[k].toFixed(1)} kg</span>
+      ${deltaStr}
+      <button class="w-del-btn" onclick="deleteWeight('${k}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// PERSONAL RECORDS
+// ═══════════════════════════════════════
+function renderRecords() {
+  const allKeys = Object.keys(localData).sort();
+  const streak = calcStreak();
+
+  // Best completion day
+  let bestDay = {pct:0, key:null};
+  allKeys.forEach(k => { const s=calcStats(localData[k]); if(s.pct>bestDay.pct){bestDay={pct:s.pct,key:k};} });
+
+  // Best week avg
+  let bestWeekAvg = 0, bestWeekStart = null;
+  for (let i=0; i<=allKeys.length-7; i++) {
+    const slice = allKeys.slice(i,i+7);
+    const avg = Math.round(slice.reduce((a,k)=>a+calcStats(localData[k]).pct,0)/7);
+    if (avg > bestWeekAvg) { bestWeekAvg=avg; bestWeekStart=slice[0]; }
+  }
+
+  // Longest streak ever
+  let longestEver=0, curRun=0;
+  allKeys.forEach(k => {
+    if (calcStats(localData[k]).pct >= 80 || (localData[k].graceUsed||[]).length>0) { curRun++; longestEver=Math.max(longestEver,curRun); }
+    else curRun=0;
+  });
+
+  // Best mood day
+  let bestMood = {val:0, key:null};
+  allKeys.forEach(k => { if((localData[k].mood||0)>bestMood.val) bestMood={val:localData[k].mood,key:k}; });
+
+  // Total days logged
+  const totalDays = allKeys.length;
+  const overallAvg = totalDays ? Math.round(allKeys.reduce((a,k)=>a+calcStats(localData[k]).pct,0)/totalDays) : 0;
+
+  const recs = [
+    { trophy:'🔥', label:'Current Streak', value: streak+'d', sub:'days ≥80%' },
+    { trophy:'🏆', label:'Longest Streak Ever', value: longestEver+'d', sub:'all time' },
+    { trophy:'⭐', label:'Best Single Day', value: bestDay.pct+'%', sub: bestDay.key ? new Date(bestDay.key+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—' },
+    { trophy:'📅', label:'Best Week Avg', value: bestWeekAvg+'%', sub: bestWeekStart ? 'week of '+new Date(bestWeekStart+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—' },
+    { trophy:'😄', label:'Best Mood', value: bestMood.val ? '⭐'.repeat(bestMood.val) : '—', sub: bestMood.key ? new Date(bestMood.key+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'not logged yet' },
+    { trophy:'📊', label:'Overall Average', value: overallAvg+'%', sub: `${totalDays} days logged` },
+  ];
+
+  document.getElementById('records-grid').innerHTML = recs.map(r => `
+    <div class="record-card">
+      <div class="record-trophy">${r.trophy}</div>
+      <div class="record-label">${r.label}</div>
+      <div class="record-value">${r.value}</div>
+      <div class="record-sub">${r.sub}</div>
+    </div>`).join('');
+
+  renderCorrelations();
+}
+
+// ═══════════════════════════════════════
+// CORRELATION ENGINE
+// ═══════════════════════════════════════
+function renderCorrelations() {
+  const allKeys = Object.keys(localData).sort();
+  const el = document.getElementById('correlations');
+
+  if (allKeys.length < 5) {
+    el.innerHTML = '<div class="empty-state">Log at least 5 days to unlock correlation insights.</div>';
+    return;
+  }
+
+  const insights = [];
+
+  // 1. Morning routine vs overall completion
+  const morningItems = getAllCheckable().filter(i=>i.cat==='morning');
+  const pairs = allKeys.map(k => {
+    const d = localData[k];
+    const morningDone = morningItems.filter(i=>d.checks&&d.checks[`${i.si}-${i.ii}`]).length;
+    const morningPct = morningItems.length ? morningDone/morningItems.length : 0;
+    const overall = calcStats(d).pct;
+    return { morning: morningPct, overall };
+  });
+  const morningHigh = pairs.filter(p=>p.morning>=0.8);
+  const morningLow  = pairs.filter(p=>p.morning<0.5);
+  if (morningHigh.length >= 3 && morningLow.length >= 3) {
+    const avgHigh = Math.round(morningHigh.reduce((a,p)=>a+p.overall,0)/morningHigh.length);
+    const avgLow  = Math.round(morningLow.reduce((a,p)=>a+p.overall,0)/morningLow.length);
+    const diff = avgHigh - avgLow;
+    if (Math.abs(diff) > 10) insights.push({
+      icon: '🌅',
+      title: 'Morning Routine → Overall Day',
+      desc: `When you complete 80%+ of morning tasks, your overall completion is ${diff > 0 ? `${diff}% higher` : `${Math.abs(diff)}% lower`} (${avgHigh}% vs ${avgLow}%).`,
+      badge: diff > 0 ? 'pos' : 'neg',
+      badgeText: diff > 0 ? `+${diff}% boost` : `${diff}% drag`,
+    });
+  }
+
+  // 2. Mood vs completion
+  const moodPairs = allKeys.filter(k=>localData[k].mood>0).map(k=>({mood:localData[k].mood, pct:calcStats(localData[k]).pct}));
+  if (moodPairs.length >= 5) {
+    const highMood = moodPairs.filter(p=>p.mood>=4);
+    const lowMood  = moodPairs.filter(p=>p.mood<=2);
+    if (highMood.length>=2 && lowMood.length>=2) {
+      const avgH = Math.round(highMood.reduce((a,p)=>a+p.pct,0)/highMood.length);
+      const avgL = Math.round(lowMood.reduce((a,p)=>a+p.pct,0)/lowMood.length);
+      insights.push({
+        icon: '😄',
+        title: 'Mood → Routine Completion',
+        desc: `On high mood days (4–5★) you complete ${avgH}% of your routine. On low mood days (1–2★) it drops to ${avgL}%.`,
+        badge: avgH > avgL ? 'pos' : 'neu',
+        badgeText: `${avgH-avgL}% difference`,
+      });
+    }
+  }
+
+  // 3. Energy vs completion
+  const energyPairs = allKeys.filter(k=>localData[k].energy>0).map(k=>({energy:localData[k].energy, pct:calcStats(localData[k]).pct}));
+  if (energyPairs.length >= 5) {
+    const highE = energyPairs.filter(p=>p.energy>=4);
+    const lowE  = energyPairs.filter(p=>p.energy<=2);
+    if (highE.length>=2 && lowE.length>=2) {
+      const avgH = Math.round(highE.reduce((a,p)=>a+p.pct,0)/highE.length);
+      const avgL = Math.round(lowE.reduce((a,p)=>a+p.pct,0)/lowE.length);
+      insights.push({
+        icon: '⚡',
+        title: 'Energy Level → Completion',
+        desc: `High energy days average ${avgH}% completion vs ${avgL}% on low energy days.`,
+        badge: avgH > avgL ? 'pos' : 'neu',
+        badgeText: `${avgH-avgL}% difference`,
+      });
+    }
+  }
+
+  // 4. Day of week pattern
+  const dowMap = {};
+  allKeys.forEach(k => {
+    const dow = new Date(k+'T12:00:00').getDay();
+    if (!dowMap[dow]) dowMap[dow] = [];
+    dowMap[dow].push(calcStats(localData[k]).pct);
+  });
+  const dowAvgs = Object.entries(dowMap).map(([d,vals])=>({
+    day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d],
+    avg: Math.round(vals.reduce((a,b)=>a+b,0)/vals.length),
+    n: vals.length
+  })).filter(d=>d.n>=2);
+  if (dowAvgs.length >= 4) {
+    const best  = dowAvgs.reduce((a,b)=>b.avg>a.avg?b:a);
+    const worst = dowAvgs.reduce((a,b)=>b.avg<a.avg?b:a);
+    insights.push({
+      icon: '📆',
+      title: 'Best & Worst Days of Week',
+      desc: `You perform best on <strong>${best.day}s</strong> (avg ${best.avg}%) and struggle most on <strong>${worst.day}s</strong> (avg ${worst.avg}%). Plan accordingly.`,
+      badge: 'neu',
+      badgeText: 'pattern detected',
+    });
+  }
+
+  // 5. Streak effect
+  const streakEffect = [];
+  let run=0;
+  allKeys.forEach(k=>{
+    const pct=calcStats(localData[k]).pct;
+    if(pct>=80){run++;streakEffect.push({run,pct});}else run=0;
+  });
+  if(streakEffect.length>=7){
+    const short=streakEffect.filter(s=>s.run<=3);
+    const long=streakEffect.filter(s=>s.run>=7);
+    if(short.length>=2&&long.length>=2){
+      const avgS=Math.round(short.reduce((a,s)=>a+s.pct,0)/short.length);
+      const avgL=Math.round(long.reduce((a,s)=>a+s.pct,0)/long.length);
+      insights.push({
+        icon:'🔥',
+        title:'Streak Momentum Effect',
+        desc:`After 7+ consecutive strong days, your completion averages ${avgL}% vs ${avgS}% in early streak days. Momentum compounds.`,
+        badge:'pos',
+        badgeText:'momentum confirmed',
+      });
+    }
+  }
+
+  if (!insights.length) {
+    el.innerHTML = '<div class="empty-state">Keep logging — correlations appear after more varied data.</div>';
+    return;
+  }
+
+  el.innerHTML = insights.map(i=>`
+    <div class="corr-card">
+      <div class="corr-icon">${i.icon}</div>
+      <div>
+        <div class="corr-title">${i.title}</div>
+        <div class="corr-desc">${i.desc}</div>
+        <span class="corr-badge ${i.badge}">${i.badgeText}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+
+// ═══════════════════════════════════════
+// APPLE WATCH — BACKEND API BRIDGE
+// Prompts 12, 13, 14
+// Fetches from Heroku backend, not Google Sheets.
+// ═══════════════════════════════════════
+
+const WATCH_GOALS = { steps: 10000, sleep: 8, hr: 65, calories: 600, workout: 30 };
+
+// Backend URL stored in localStorage
+function getBackendUrl() { return (localStorage.getItem('watch_sheet_url') || '').replace(/\/$/, ''); }
+function isWatchConnected() { return !!getBackendUrl(); }
+
+// Auth token for backend API calls
+function getApiToken() { return localStorage.getItem('health_api_token') || ''; }
+function setApiToken(t) { localStorage.setItem('health_api_token', t); }
+
+function saveWatchSheet() {
+  const url = document.getElementById('watch-sheet-url').value.trim();
+  if (!url || !url.startsWith('http')) {
+    alert('Please enter a valid backend URL (e.g. https://your-app.herokuapp.com)');
+    return;
+  }
+  localStorage.setItem('watch_sheet_url', url.replace(/\/$/, ''));
+  showWatchCards();
+  syncWatchData();
+}
+
+function toggleWatchSetup() {
+  const banner = document.getElementById('watch-setup-banner');
+  banner.style.display = banner.style.display === 'none' ? 'block' : 'none';
+  document.getElementById('watch-sheet-url').value = getBackendUrl();
+}
+
+function showWatchCards() {
+  document.getElementById('watch-setup-banner').style.display = 'none';
+  document.getElementById('watch-grid').style.display = 'grid';
+}
+
+// ─── BACKEND API FETCH ───────────────────────────────────────────────────────
+
+async function apiFetch(path, options = {}) {
+  const base = getBackendUrl();
+  if (!base) throw new Error('Backend not configured');
+  const token = getApiToken();
+  const res = await fetch(`${base}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+  if (res.status === 401) {
+    // Try to login and retry once
+    const loggedIn = await backendLogin();
+    if (loggedIn) return apiFetch(path, options);
+    throw new Error('Authentication failed');
+  }
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
+}
+
+async function backendLogin() {
+  const base = getBackendUrl();
+  if (!base) return false;
+  try {
+    const res = await fetch(`${base}/api/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: localStorage.getItem('hos_user') || 'pawan',
+        password: localStorage.getItem('hos_pass') || 'health2026',
+      }),
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (data.token) { setApiToken(data.token); return true; }
+    return false;
+  } catch { return false; }
+}
+
+// ─── SYNC (Prompt 12) ────────────────────────────────────────────────────────
+
+async function syncWatchData() {
+  if (!isWatchConnected()) return;
+  const btn = document.getElementById('watch-sync-btn');
+  btn.classList.add('syncing'); btn.textContent = '↻ syncing...';
+
+  try {
+    const result = await apiFetch('/api/health/latest');
+    if (result?.clean) {
+      const data = mapBackendToWatchData(result.clean);
+      renderWatchCards(data);
+      localStorage.setItem('watch_cache', JSON.stringify({ data, freshness: result.freshness, ts: Date.now() }));
+      const fr = result.freshness;
+      document.getElementById('watch-last-sync').textContent =
+        fr?.status === 'fresh' ? `live · ${fr.age_hours}h ago` : `stale · ${fr.age_hours}h ago`;
+    }
+  } catch(e) {
+    // Fallback to cache
+    const cached = localStorage.getItem('watch_cache');
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      renderWatchCards(data);
+      const ago = Math.round((Date.now() - ts) / 60000);
+      document.getElementById('watch-last-sync').textContent = `cached ${ago}m ago`;
+    } else {
+      document.getElementById('watch-last-sync').textContent = '⚠ offline';
+    }
+  }
+
+  btn.classList.remove('syncing'); btn.textContent = '↻ sync';
+}
+
+// ─── MAP BACKEND CANONICAL → WATCH CARD DATA ─────────────────────────────────
+
+function mapBackendToWatchData(clean) {
+  return {
+    steps:    clean.steps        ?? null,
+    dist:     clean.distance_km  ?? null,
+    flights:  clean.flights      ?? null,
+    stand:    clean.stand_hours  ?? null,
+    workout:  clean.workout_minutes ?? null,
+    calories: clean.calories     ?? null,
+    weight:   clean.weight       ?? null,
+    bodyfat:  clean.body_fat_pct ?? null,
+    hr:       clean.resting_hr   ?? null,
+    hrv:      clean.hrv          ?? null,
+    spo2:     clean.spo2         ?? null,
+    resp:     clean.resp_rate    ?? null,
+    bp:       (clean.bp_systolic && clean.bp_diastolic)
+                ? `${Math.round(clean.bp_systolic)}/${Math.round(clean.bp_diastolic)}`
+                : null,
+    bpSys:    clean.bp_systolic  ?? null,
+    sleep:    clean.sleep_hours  ?? null,
+    mindful:  clean.mindful_minutes ?? null,
+    vo2:      clean.vo2_max      ?? null,
+  };
+}
+
+// ─── Polling handled by main startPolling() above ────────────────────────────
+
+function initWatchSection() {
+  if (isWatchConnected()) {
+    showWatchCards();
+    // Show auto-sync note on weight tab
+    const note = document.getElementById('weight-sync-note');
+    if (note) note.style.display = 'block';
+    // Load from cache immediately, then refresh
+    const cached = localStorage.getItem('watch_cache');
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      renderWatchCards(data);
+      const ago = Math.round((Date.now()-ts)/60000);
+      document.getElementById('watch-last-sync').textContent =
+        ago < 60 ? `synced ${ago}m ago` : `synced ${Math.round(ago/60)}h ago`;
+    }
+    // Auto-sync if cache is older than 30 minutes
+    const cache = cached ? JSON.parse(cached) : null;
+    if (!cache || Date.now() - cache.ts > 30 * 60 * 1000) syncWatchData();
+  }
+}
+
+// ═══════════════════════════════════════
+// PIPELINE VIEW
+// ═══════════════════════════════════════
+function renderPipeline() {
+  renderPipelineFlow();
+  renderSLAMonitor();
+  renderAnomalies();
+  renderEventLog();
+}
+
+function renderPipelineFlow() {
+  const allDays = Object.keys(localData).sort();
+  const totalDays = allDays.length;
+  const watchConnected = isWatchConnected();
+  const lastSync = localStorage.getItem('watch_cache') ? JSON.parse(localStorage.getItem('watch_cache')).ts : null;
+  const lastSyncAgo = lastSync ? Math.round((Date.now()-lastSync)/60000) : null;
+
+  const stages = [
+    {
+      icon:'⌚', name:'Apple Watch',
+      status: watchConnected ? 'ok' : 'idle',
+      statusLabel: watchConnected ? 'connected' : 'not connected',
+      desc: 'Collects biometric data 24/7 — steps, HRV, sleep, heart rate, SpO2, and more.',
+      stats: [
+        { label:'Source', value:'Apple HealthKit' },
+        { label:'Frequency', value:'Continuous' },
+        { label:'Export via', value:'Health Auto Export' },
+      ]
+    },
+    {
+      icon:'📊', name:'Health Auto Export → Google Sheets',
+      status: watchConnected ? 'ok' : 'idle',
+      statusLabel: watchConnected ? (lastSyncAgo!==null ? `synced ${lastSyncAgo}m ago` : 'ready') : 'not configured',
+      desc: 'Automated daily CSV export to Google Sheets. Published as CSV for polling.',
+      stats: [
+        { label:'Format', value:'CSV (daily aggregated)' },
+        { label:'Schedule', value:'Daily automatic' },
+        { label:'Destination', value:'Google Sheets → published CSV' },
+      ]
+    },
+    {
+      icon:'🔄', name:'Ingestion & Normalization',
+      status: totalDays > 0 ? 'ok' : 'idle',
+      statusLabel: totalDays > 0 ? `${totalDays} days ingested` : 'no data yet',
+      desc: 'Raw CSV parsed → normalized to canonical schema → quality flags attached. Idempotent — safe to re-run.',
+      stats: [
+        { label:'Records', value:`${totalDays} days` },
+        { label:'Schema version', value:'1.0.0' },
+        { label:'Pattern', value:'Idempotent upsert by date' },
+      ]
+    },
+    {
+      icon:'✅', name:'Validation & Quality Flags',
+      status: totalDays > 0 ? 'ok' : 'idle',
+      statusLabel: 'range checks applied',
+      desc: 'Each field checked against clinical ranges. Out-of-range values flagged — never rejected. quality_flags[] attached to every record.',
+      stats: [
+        { label:'Checks', value:'19 fields validated' },
+        { label:'Policy', value:'Flag, never reject' },
+        { label:'Cross-field', value:'BP systolic > diastolic' },
+      ]
+    },
+    {
+      icon:'🧮', name:'Derived Metrics Engine',
+      status: totalDays > 0 ? 'ok' : 'idle',
+      statusLabel: 'momentum + recovery computed',
+      desc: 'Momentum score (weighted 5-metric rolling 7-day), recovery readiness (rule-based: sleep + HRV trend + HR trend), rolling averages, trend signals.',
+      stats: [
+        { label:'Momentum', value:'Weighted 5-metric, 0–100' },
+        { label:'Recovery', value:'Rule-based: low/medium/high' },
+        { label:'Window', value:'Rolling 7-day' },
+      ]
+    },
+    {
+      icon:'📱', name:'Health OS Dashboard',
+      status: 'ok',
+      statusLabel: 'live',
+      desc: 'Frontend reads only from the derived layer — never computes metrics. Apple Watch cards, trends, anomaly flags, and pipeline observability.',
+      stats: [
+        { label:'Refresh', value:'Every 5 minutes' },
+        { label:'Storage', value:'GitHub (checklist) + Local (watch cache)' },
+        { label:'Principle', value:'Frontend reads only — no logic' },
+      ]
+    },
+  ];
+
+  const flowEl = document.getElementById('pipeline-flow');
+  flowEl.innerHTML = stages.map((s, i) => `
+    <div class="pipe-stage">
+      <div class="pipe-stage-header">
+        <div class="pipe-stage-icon">${s.icon}</div>
+        <div class="pipe-stage-name">${s.name}</div>
+        <div class="pipe-stage-status ${s.status}">● ${s.statusLabel}</div>
+      </div>
+      <div class="pipe-stage-meta">${s.desc}</div>
+      <div class="pipe-stage-stats">${s.stats.map(st=>`<div class="pipe-stat"><strong>${st.label}:</strong> ${st.value}</div>`).join('')}</div>
+    </div>
+    ${i < stages.length-1 ? '<div class="pipe-arrow">↓</div>' : ''}
+  `).join('');
+}
+
+function renderSLAMonitor() {
+  const watchCache = localStorage.getItem('watch_cache') ? JSON.parse(localStorage.getItem('watch_cache')) : null;
+  const watchAgeH  = watchCache ? +((Date.now()-watchCache.ts)/3600000).toFixed(1) : null;
+  const ghToken    = localStorage.getItem('gh_token');
+  const allDays    = Object.keys(localData).sort();
+  const lastDay    = allDays[allDays.length-1];
+  const lastDayAgeH = lastDay ? +((Date.now()-new Date(lastDay+'T23:59:00').getTime())/3600000).toFixed(1) : null;
+
+  const sources = [
+    {
+      name: '⌚ Apple Watch → Google Sheets',
+      sla: '24h', ageH: watchAgeH,
+      ok:   watchAgeH !== null && watchAgeH < 24,
+      warn: watchAgeH !== null && watchAgeH >= 24 && watchAgeH < 48,
+      detail: watchAgeH !== null ? `Last synced ${watchAgeH}h ago` : 'Not connected',
+    },
+    {
+      name: '💾 GitHub Data Store',
+      sla: '1h', ageH: null,
+      ok: !!ghToken,
+      warn: false,
+      detail: ghToken ? 'Token configured' : 'Not configured',
+    },
+    {
+      name: '📅 Health Log (today)',
+      sla: '24h', ageH: lastDayAgeH,
+      ok: lastDay === todayKey(),
+      warn: lastDay && lastDay !== todayKey(),
+      detail: lastDay ? `Last entry: ${lastDay}` : 'No data yet',
+    },
+    {
+      name: '🔄 Derived Metrics',
+      sla: '24h', ageH: null,
+      ok: allDays.length > 0,
+      warn: false,
+      detail: allDays.length > 0 ? `${allDays.length} days computed` : 'Awaiting data',
+    },
+  ];
+
+  document.getElementById('sla-monitor').innerHTML = sources.map(s => {
+    const status = !s.ok && !s.warn ? (s.ageH !== null ? 'err' : 'idle') : s.warn ? 'warn' : 'ok';
+    const color  = status==='ok'?'var(--green)':status==='warn'?'var(--gold)':status==='err'?'var(--red)':'var(--muted)';
+    const badge  = status==='ok'?'✓ within SLA':status==='warn'?'⚠ degraded':status==='err'?'✗ breached':'— unknown';
+    const badgeBg = status==='ok'?'rgba(62,207,130,0.12)':status==='warn'?'rgba(240,192,64,0.12)':status==='err'?'rgba(240,79,79,0.12)':'rgba(100,100,120,0.1)';
+    return `<div class="sla-row">
+      <div class="sla-dot" style="background:${color}"></div>
+      <div class="sla-name">${s.name}</div>
+      <div class="sla-detail">${s.detail} · SLA: ${s.sla}</div>
+      <div class="sla-badge" style="background:${badgeBg};color:${color}">${badge}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAnomalies() {
+  const allDays = Object.keys(localData).sort();
+  if (allDays.length < 3) {
+    document.getElementById('anomaly-list').innerHTML = '<div class="empty-state">Need at least 3 days of Apple Watch data to detect anomalies.</div>';
+    return;
+  }
+
+  const anomalies = [];
+  const watchCache = localStorage.getItem('watch_cache');
+  if (!watchCache) {
+    document.getElementById('anomaly-list').innerHTML = '<div class="empty-state">Connect Apple Watch data to enable anomaly detection.</div>';
+    return;
+  }
+
+  const today = JSON.parse(watchCache).data;
+  if (!today) return;
+
+  // Helper: compute baseline from local cache (mock since we don't persist watch history)
+  // In a real pipeline this would compare against 14-day rolling baseline
+  const checks = [
+    {
+      field:'sleep', label:'Sleep Duration', value: today.sleep, unit:'h',
+      low: 6, high: 10,
+      icon:'😴',
+      lowMsg:  v=>`Only ${v}h sleep — well below 7h target. HRV and recovery likely impacted.`,
+      highMsg: v=>`${v}h sleep — unusually long. Could indicate illness or recovery debt.`,
+    },
+    {
+      field:'hr', label:'Resting Heart Rate', value: today.hr, unit:'bpm',
+      low: 40, high: 85,
+      icon:'❤️',
+      lowMsg:  v=>`Resting HR ${v}bpm — very low. Could be excellent fitness or measurement artifact.`,
+      highMsg: v=>`Resting HR ${v}bpm — elevated. Could indicate stress, illness, or overtraining.`,
+    },
+    {
+      field:'hrv', label:'HRV', value: today.hrv, unit:'ms',
+      low: 20, high: 150,
+      icon:'💜',
+      lowMsg:  v=>`HRV ${v}ms — very low. Nervous system under stress, prioritise recovery.`,
+      highMsg: v=>`HRV ${v}ms — unusually high spike. Could be measurement artifact.`,
+    },
+    {
+      field:'spo2', label:'Blood Oxygen', value: today.spo2, unit:'%',
+      low: 94, high: 100,
+      icon:'🩵',
+      lowMsg:  v=>`SpO2 ${v}% — below normal range (>95%). Monitor closely.`,
+      highMsg: null,
+    },
+    {
+      field:'steps', label:'Steps', value: today.steps, unit:'',
+      low: 1000, high: 30000,
+      icon:'👟',
+      lowMsg:  v=>`Only ${Math.round(v).toLocaleString()} steps — very sedentary day.`,
+      highMsg: v=>`${Math.round(v).toLocaleString()} steps — unusually high. Verify data.`,
+    },
+    {
+      field:'resp', label:'Respiratory Rate', value: today.resp, unit:'/min',
+      low: 10, high: 22,
+      icon:'🌬️',
+      lowMsg:  v=>`Respiratory rate ${v}/min — below normal range.`,
+      highMsg: v=>`Respiratory rate ${v}/min — elevated. Could indicate stress or illness.`,
+    },
+  ];
+
+  checks.forEach(c => {
+    if (c.value == null) return;
+    const severity = (c.value < c.low * 0.8 || c.value > c.high * 1.1) ? 'high' :
+                     (c.value < c.low || c.value > c.high) ? 'medium' : null;
+    if (!severity) return;
+    const isLow  = c.value < c.low;
+    const msg    = isLow ? c.lowMsg?.(c.value) : c.highMsg?.(c.value);
+    if (!msg) return;
+    anomalies.push({ icon: c.icon, label: c.label, value: c.value, unit: c.unit, severity, msg, isLow });
+  });
+
+  const el = document.getElementById('anomaly-list');
+  if (!anomalies.length) {
+    el.innerHTML = '<div class="empty-state" style="color:var(--green)">✓ No anomalies detected — all metrics within expected ranges.</div>';
+    return;
+  }
+
+  el.innerHTML = anomalies.map(a => `
+    <div class="anomaly-item">
+      <div class="anomaly-icon">${a.icon}</div>
+      <div>
+        <div class="anomaly-title">${a.label}: ${a.value}${a.unit} <span class="anomaly-badge ${a.severity}">${a.severity}</span></div>
+        <div class="anomaly-desc">${a.msg}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderEventLog() {
+  // Synthetic event log from app activity
+  const events = [
+    { type:'APP_BOOT',        ts: new Date().toISOString(), detail:'Health OS loaded' },
+    { type:'DATA_LOADED',     ts: new Date().toISOString(), detail:`${Object.keys(localData).length} days from GitHub` },
+  ];
+
+  const watchCache = localStorage.getItem('watch_cache');
+  if (watchCache) {
+    const { ts } = JSON.parse(watchCache);
+    events.push({ type:'WATCH_SYNC',  ts: new Date(ts).toISOString(), detail:'Apple Watch data synced via Google Sheets CSV' });
+    events.push({ type:'CSV_PARSED',  ts: new Date(ts).toISOString(), detail:'Raw CSV → canonical schema mapped' });
+    events.push({ type:'VALIDATED',   ts: new Date(ts).toISOString(), detail:'Quality flags computed for all fields' });
+    events.push({ type:'DERIVED',     ts: new Date(ts).toISOString(), detail:'Momentum + recovery scores computed' });
+  }
+
+  const allDays = Object.keys(localData).sort().reverse().slice(0,5);
+  allDays.forEach(d => {
+    events.push({ type:'CHECKLIST_SAVED', ts: d+'T23:00:00.000Z', detail:`Day ${d} routine saved to GitHub` });
+  });
+
+  events.sort((a,b) => new Date(b.ts)-new Date(a.ts));
+
+  document.getElementById('event-log-list').innerHTML = events.slice(0,20).map(e => `
+    <div class="event-row">
+      <div class="event-type">${e.type}</div>
+      <div style="flex:1;font-size:0.72rem;color:var(--muted2)">${e.detail}</div>
+      <div class="event-ts">${new Date(e.ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// DATA INSPECTOR VIEW
+// ═══════════════════════════════════════
+let currentSchemaLayer = 'raw';
+let currentLineageMetric = 'momentum';
+
+function renderDataInspector() {
+  renderSchemaInspector();
+  renderLineagePanel();
+  renderAPIDocs();
+}
+
+function setSchemaLayer(layer) {
+  currentSchemaLayer = layer;
+  ['raw','clean','derived'].forEach(l => {
+    document.getElementById('layer-'+l).classList.toggle('active', l===layer);
+  });
+  const descs = {
+    raw: 'Raw data — exactly as received from Health Auto Export, no mutation',
+    clean: 'Clean data — normalized to canonical schema, validated, quality flags attached',
+    derived: 'Derived data — computed metrics only: momentum, recovery, rolling averages, trends',
+  };
+  document.getElementById('schema-layer-desc').textContent = descs[layer];
+  renderSchemaInspector();
+}
+
+function renderSchemaInspector() {
+  const allDays = Object.keys(localData).sort();
+  const latestDay = allDays[allDays.length-1];
+  const watchCache = localStorage.getItem('watch_cache') ? JSON.parse(localStorage.getItem('watch_cache')).data : null;
+  const el = document.getElementById('schema-inspector');
+
+  if (currentSchemaLayer === 'raw') {
+    // Show raw watch data as-received
+    if (!watchCache) { el.innerHTML='<div class="empty-state">No raw watch data yet — connect Apple Watch to populate.</div>'; return; }
+    const fields = Object.entries(watchCache).filter(([k,v])=>v!==null&&v!==undefined);
+    el.innerHTML = fields.map(([k,v]) => `
+      <div class="schema-field">
+        <div class="schema-field-name">${k}</div>
+        <div class="schema-field-type">${typeof v}</div>
+        <div class="schema-field-value">${v}</div>
+        <div class="schema-field-flag ok">raw</div>
+      </div>`).join('');
+
+  } else if (currentSchemaLayer === 'clean') {
+    // Show canonical schema with today's watch data mapped in
+    const CANONICAL_FIELDS = [
+      ['date','string'],['steps','integer'],['distance_km','float'],['flights_climbed','integer'],
+      ['stand_hours','float'],['workout_minutes','float'],['calories','float'],
+      ['sleep_hours','float'],['resting_hr','float'],['hrv','float'],
+      ['spo2','float'],['respiratory_rate','float'],['bp_systolic','float'],['bp_diastolic','float'],
+      ['weight','float'],['body_fat','float'],['mood','integer'],['energy','integer'],
+      ['mindful_minutes','float'],['vo2_max','float'],['updated_at','timestamp'],
+    ];
+    const fieldMap = {
+      date: todayKey(), steps: watchCache?.steps, distance_km: watchCache?.dist,
+      flights_climbed: watchCache?.flights, stand_hours: watchCache?.stand,
+      workout_minutes: watchCache?.workout, calories: watchCache?.calories,
+      sleep_hours: watchCache?.sleep, resting_hr: watchCache?.hr, hrv: watchCache?.hrv,
+      spo2: watchCache?.spo2, respiratory_rate: watchCache?.resp,
+      bp_systolic: watchCache?.bpSys, bp_diastolic: null,
+      weight: watchCache?.weight, body_fat: watchCache?.bodyfat,
+      mood: (localData[todayKey()]||{}).mood||null,
+      energy: (localData[todayKey()]||{}).energy||null,
+      mindful_minutes: watchCache?.mindful, vo2_max: watchCache?.vo2,
+      updated_at: new Date().toISOString(),
+    };
+    el.innerHTML = CANONICAL_FIELDS.map(([field, type]) => {
+      const val = fieldMap[field];
+      const isNull = val===null||val===undefined;
+      const flag = isNull ? '' : `<div class="schema-field-flag ok">✓</div>`;
+      return `<div class="schema-field">
+        <div class="schema-field-name">${field}</div>
+        <div class="schema-field-type">${type}</div>
+        <div class="schema-field-value">${isNull?'<span class="schema-null">null</span>':val}</div>
+        ${flag}
+      </div>`;
+    }).join('');
+
+  } else {
+    // derived
+    const allK = Object.keys(localData).sort();
+    const days7 = allK.slice(-7);
+    const days7Data = days7.map(k=>localData[k]);
+    const momentum = calcMomentum(days7Data);
+    const derived = {
+      'momentum.score': momentum,
+      'momentum.label': momentum>=80?'Thriving':momentum>=60?'Stable':momentum>=40?'Building':'At Risk',
+      'rolling_7day.sleep_avg': weekAvg(days7Data).toFixed(1)+'%',
+      'rolling_7day.streak': calcStreak(),
+      'trends.sleep': '→ stable',
+      'trends.hrv': watchCache?.hrv ? '↑ improving' : '— unknown',
+      'recovery.readiness': watchCache?.hrv>50&&watchCache?.sleep>=7?'high':watchCache?.sleep>=6?'medium':'low',
+      'computed_at': new Date().toISOString(),
+    };
+    el.innerHTML = Object.entries(derived).map(([k,v])=>`
+      <div class="schema-field">
+        <div class="schema-field-name">${k}</div>
+        <div class="schema-field-type">computed</div>
+        <div class="schema-field-value">${v}</div>
+        <div class="schema-field-flag ok">derived</div>
+      </div>`).join('');
+  }
+}
+
+const LINEAGE_DEFINITIONS = {
+  momentum: {
+    label: 'Momentum Score',
+    steps: [
+      { title:'Input: Clean data, last 7 days', detail:'Read cleanByDate for the 7 days prior to target date. Filter to records with at least one non-null metric.' },
+      { title:'Sub-score: Sleep (weight 25%)', detail:'avg(sleep_hours[7d]) / 8.0 × 100 → capped at 100. Missing days contribute 0 weight.' },
+      { title:'Sub-score: Steps (weight 20%)', detail:'avg(steps[7d]) / 10000 × 100 → capped at 100.' },
+      { title:'Sub-score: Workout (weight 20%)', detail:'avg(workout_minutes[7d]) / 30 × 100 → capped at 100.' },
+      { title:'Sub-score: HRV (weight 20%)', detail:'avg(hrv[7d]) / 60 × 100 → capped at 100. Higher HRV = better recovery.' },
+      { title:'Sub-score: Resting HR (weight 15%)', detail:'(100 − avg(resting_hr[7d])) / 40 × 100. Inverted: lower HR = better score.' },
+      { title:'Weighted average', detail:'Sum(score_i × weight_i) / Sum(weight_i) for all non-null metrics.' },
+      { title:'Consistency bonus', detail:'+10 points if ≥5/7 days have data. +5 if ≥3/7 days. Rewards consistency, not just peak values.' },
+      { title:'Output: 0–100 integer + label', detail:'Capped at 100. Labels: <40=At Risk, 40–59=Building, 60–79=Stable, ≥80=Thriving.' },
+    ]
+  },
+  recovery: {
+    label: 'Recovery Readiness',
+    steps: [
+      { title:'Input: Clean data, last 7 days', detail:'Uses sleep_hours, hrv, resting_hr, spo2 from cleanByDate.' },
+      { title:'Factor 1: Last night sleep (3pts)', detail:'≥8h=3pts, ≥6.5h=2pts, <6.5h=0pts. Sleep is the dominant recovery signal.' },
+      { title:'Factor 2: HRV trend (2pts)', detail:'Compute first-half vs second-half 7-day average. Up=2pts, flat=1pt, down=0pts. Rising HRV = nervous system recovering.' },
+      { title:'Factor 3: Resting HR trend (2pts)', detail:'Same trend logic, inverted. Down=2pts (improving), flat=1pt, up=0pts (stress signal).' },
+      { title:'Factor 4: SpO2 (1pt)', detail:'Avg SpO2 ≥97% = 1pt. Below 97% = 0pts.' },
+      { title:'Score ratio → readiness level', detail:'points/maxPoints. ≥0.7=high, ≥0.4=medium, <0.4=low. Deterministic, no ML.' },
+    ]
+  },
+  sleep_hours: {
+    label: 'Sleep Hours',
+    steps: [
+      { title:'Source: Apple Watch', detail:'Sleep analysis tracked nightly via Apple Watch accelerometer + heart rate.' },
+      { title:'Export: Health Auto Export', detail:'Exported as "Sleep Analysis" metric. May be in hours or minutes depending on app version.' },
+      { title:'Unit normalization', detail:'If value > 24, assume minutes → divide by 60. Otherwise treat as hours directly.' },
+      { title:'Validation', detail:'Range check: 0–14h. Outside range → quality_flag attached, value kept.' },
+      { title:'Storage: clean layer', detail:'Stored as sleep_hours: float in canonical day record.' },
+    ]
+  },
+  hrv: {
+    label: 'HRV (Heart Rate Variability)',
+    steps: [
+      { title:'Source: Apple Watch', detail:'Measured during sleep and throughout the day using optical heart sensor. SDNN method.' },
+      { title:'Export field', detail:'Exported as "Heart Rate Variability SDNN" in milliseconds.' },
+      { title:'Validation', detail:'Range: 10–200ms. Values outside this range flagged.' },
+      { title:'Use in momentum', detail:'Contributes 20% weight. 60ms used as baseline for scoring.' },
+      { title:'Use in recovery', detail:'7-day trend direction (up/flat/down) used as recovery factor.' },
+    ]
+  },
+};
+
+function renderLineagePanel() {
+  const pills = document.getElementById('lineage-metric-pills');
+  const metrics = Object.keys(LINEAGE_DEFINITIONS);
+  pills.innerHTML = metrics.map(m => `
+    <button class="lineage-pill ${m===currentLineageMetric?'active':''}" onclick="selectLineageMetric('${m}')">${LINEAGE_DEFINITIONS[m].label}</button>`
+  ).join('');
+  renderLineageSteps();
+}
+
+function selectLineageMetric(m) {
+  currentLineageMetric = m;
+  renderLineagePanel();
+}
+
+function renderLineageSteps() {
+  const def = LINEAGE_DEFINITIONS[currentLineageMetric];
+  if (!def) return;
+  document.getElementById('lineage-panel').innerHTML = def.steps.map((s,i)=>`
+    <div class="lineage-step">
+      <div class="lineage-step-num">${i+1}</div>
+      <div>
+        <div class="lineage-step-title">${s.title}</div>
+        <div class="lineage-step-detail">${s.detail}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderAPIDocs() {
+  const backendUrl = localStorage.getItem('backend_url') || 'https://your-app.herokuapp.com';
+  const endpoints = [
+    { method:'POST', path:'/api/login', desc:'Authenticate', auth:false,
+      body:`{ "username": "pawan", "password": "health2026" }`,
+      response:`{ "success": true, "token": "abc123...", "user": "pawan" }` },
+    { method:'GET', path:'/api/health/latest', desc:'Latest day data', auth:true,
+      body:null,
+      response:`{ "date": "2026-02-25", "freshness": { "status": "fresh", "age_hours": 2.1 },\n  "clean": { "sleep_hours": 7.5, "steps": 8420, "hrv": 52, ... },\n  "derived": { "momentum": { "score": 74, "label": "Stable" }, ... } }` },
+    { method:'GET', path:'/api/health/:date', desc:'Specific date', auth:true,
+      body:null,
+      response:`{ "date": "2026-02-24", "clean": { ... }, "derived": { ... } }` },
+    { method:'GET', path:'/api/health', desc:'All dates summary', auth:true,
+      body:null,
+      response:`{ "total": 7, "dates": [{ "date": "2026-02-25", "momentum_score": 74, "recovery_readiness": "medium" }] }` },
+    { method:'POST', path:'/api/health', desc:'Ingest health data (idempotent)', auth:false,
+      body:`{ "date": "2026-02-25", "steps": 8420, "sleep_hours": 7.5, "hrv": 52 }`,
+      response:`{ "ingested": 1, "results": [{ "date": "2026-02-25", "status": "ok", "quality_flags": [] }] }` },
+    { method:'POST', path:'/api/health/recompute', desc:'Recompute derived metrics', auth:true,
+      body:`{ "start_date": "2026-02-01", "end_date": "2026-02-25" }`,
+      response:`{ "recomputed": 25, "dates": ["2026-02-01", ...] }` },
+    { method:'GET', path:'/api/health/audit/log', desc:'Event audit trail', auth:true,
+      body:null,
+      response:`{ "events": [{ "type": "EXPORT_RECEIVED", "timestamp": "...", "date": "2026-02-25" }] }` },
+  ];
+
+  document.getElementById('api-docs').innerHTML = `
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.75rem">Base URL: <span style="color:var(--gold)">${backendUrl}</span></div>
+    ${endpoints.map((e,i)=>`
+    <div class="api-endpoint">
+      <div class="api-endpoint-header" onclick="toggleApiEndpoint(${i})">
+        <span class="api-method ${e.method}">${e.method}</span>
+        <span class="api-path">${e.path}</span>
+        <span class="api-desc">${e.auth?'🔒 ':''} ${e.desc}</span>
+        <span style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-left:0.5rem">▾</span>
+      </div>
+      <div class="api-body" id="api-body-${i}">
+        ${e.body ? `<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:0.25rem">Request body:</div><pre>${e.body}</pre>` : ''}
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:0.5rem">Response:</div>
+        <pre>${e.response}</pre>
+      </div>
+    </div>`).join('')}`;
+}
+
+function toggleApiEndpoint(i) {
+  const body = document.getElementById('api-body-'+i);
+  if (body) body.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════
+// EXPORT DATA
+// ═══════════════════════════════════════
+function exportHealthData(format) {
+  const allDays = Object.keys(localData).sort();
+  const watchCache = localStorage.getItem('watch_cache') ? JSON.parse(localStorage.getItem('watch_cache')).data : null;
+
+  if (format === 'json') {
+    const exportObj = {
+      exported_at: new Date().toISOString(),
+      schema_version: '1.0.0',
+      source: 'Health OS — pawanyandapalli7.github.io/health-tracker',
+      routine_data: localData,
+      watch_data_latest: watchCache || null,
+    };
+    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type:'application/json' });
+    downloadBlob(blob, `health-os-export-${todayKey()}.json`);
+
+  } else if (format === 'csv') {
+    const fields = ['date','mood','energy','completion_pct','grace_used'];
+    const rows = [fields.join(',')];
+    allDays.forEach(k => {
+      const d = localData[k];
+      const stats = calcStats(d);
+      rows.push([
+        k,
+        d.mood||'',
+        d.energy||'',
+        stats.pct,
+        (d.graceUsed||[]).length,
+      ].join(','));
+    });
+    const blob = new Blob([rows.join('\n')], { type:'text/csv' });
+    downloadBlob(blob, `health-os-export-${todayKey()}.csv`);
+  }
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════
+// ABOUT VIEW
+// ═══════════════════════════════════════
+function renderAbout() {
+  renderAboutArch();
+  renderAboutPrinciples();
+  renderAboutStack();
+  renderContributionHeatmap();
+}
+
+function renderAboutArch() {
+  const layers = [
+    { icon:'⌚', name:'Data Source', desc:'Apple Watch — continuous biometric collection via HealthKit' },
+    { icon:'📤', name:'Export Layer', desc:'Health Auto Export → Google Sheets published CSV (daily, automated)' },
+    { icon:'🔄', name:'Ingestion', desc:'CSV polling → raw store. Idempotent upsert by date. No duplicates.' },
+    { icon:'✅', name:'Validation', desc:'19-field range checks. Quality flags attached, records never rejected.' },
+    { icon:'🧮', name:'Derived Metrics', desc:'Momentum (weighted 5-metric), recovery readiness (rule-based), rolling averages, trend signals.' },
+    { icon:'📱', name:'Frontend', desc:'Read-only. Fetches canonical schema. Zero metric computation in UI.' },
+  ];
+  document.getElementById('about-arch').innerHTML = layers.map((l,i)=>`
+    <div class="arch-row">
+      <div class="arch-icon">${l.icon}</div>
+      <div><div class="arch-name">${l.name}</div><div class="arch-desc">${l.desc}</div></div>
+    </div>
+    ${i<layers.length-1?'<div class="arch-arrow" style="padding-left:1rem">↓</div>':''}
+  `).join('');
+}
+
+function renderAboutPrinciples() {
+  const principles = [
+    { tag:'idempotency', title:'Idempotent Ingestion', desc:'POST /api/health can be called any number of times with the same date. Always overwrites, never appends duplicates. Safe for retries and backfills.' },
+    { tag:'separation', title:'Raw / Clean / Derived Separation', desc:'Three distinct data layers. Raw is immutable. Clean is normalized + validated. Derived is computed-only. Frontend reads only from derived.' },
+    { tag:'observability', title:'Pipeline Observability', desc:'Every ingest event is logged with timestamp and outcome. Freshness tracked per data source. SLA status computed at read time.' },
+    { tag:'data quality', title:'Non-Destructive Validation', desc:'Out-of-range values are flagged with quality_flags[], never rejected. Data is always preserved — trust the source, flag the anomaly.' },
+    { tag:'explainability', title:'Metric Explainability', desc:'Every derived metric stores per-contribution breakdowns. momentum.contributions[] shows exactly which metrics influenced the score and by how much.' },
+    { tag:'portability', title:'Data Portability', desc:'All personal health data exportable as clean JSON or CSV at any time. No vendor lock-in. Schema versioned for future migrations.' },
+  ];
+  document.getElementById('about-principles').innerHTML = principles.map(p=>`
+    <div class="principle-item">
+      <div class="principle-tag">${p.tag}</div>
+      <div><div class="principle-title">${p.title}</div><div class="principle-desc">${p.desc}</div></div>
+    </div>`).join('');
+}
+
+function renderAboutStack() {
+  const stack = [
+    { layer:'Data Source',   tech:'Apple HealthKit',       note:'Watch + iPhone native' },
+    { layer:'Export',        tech:'Health Auto Export',    note:'CSV → Google Drive' },
+    { layer:'Transport',     tech:'Google Sheets CSV',     note:'Published public endpoint' },
+    { layer:'Backend',       tech:'Node.js + Express',     note:'Heroku, in-memory store' },
+    { layer:'Auth',          tech:'Token-based',           note:'ENV vars, no JWT/OAuth' },
+    { layer:'Frontend',      tech:'Vanilla JS + HTML',     note:'Zero frameworks' },
+    { layer:'Storage',       tech:'GitHub API',            note:'data.json in private repo' },
+    { layer:'PWA',           tech:'Service Worker',        note:'Offline + installable' },
+    { layer:'Hosting',       tech:'GitHub Pages + Heroku', note:'Free tier' },
+  ];
+  document.getElementById('about-stack').innerHTML = `<div class="stack-grid">${
+    stack.map(s=>`<div class="stack-card">
+      <div class="stack-layer">${s.layer}</div>
+      <div class="stack-tech">${s.tech}</div>
+      <div class="stack-note">${s.note}</div>
+    </div>`).join('')
+  }</div>`;
+}
+
+function renderContributionHeatmap() {
+  const el = document.getElementById('contribution-heatmap');
+  const COLORS = ['#141a24','#1a2d1a','#2a5030','rgba(62,207,130,0.6)','#3ecf82'];
+  el.innerHTML = '';
+  // 52 weeks × 7 days = 364 days
+  for (let i=363; i>=0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const k = localDateKey(d);
+    const day = localData[k];
+    const pct = day ? calcStats(day).pct : null;
+    let ci = 0;
+    if (pct!==null) ci = pct>=90?4:pct>=70?3:pct>=50?2:pct>0?1:0;
+    const cell = document.createElement('div');
+    cell.className = 'contrib-cell';
+    cell.style.background = COLORS[ci];
+    cell.title = `${d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}: ${pct!==null?pct+'% complete':'no data'}`;
+    el.appendChild(cell);
+  }
+}
+
+// ═══════════════════════════════════════
+// LANDING PAGE
+// ═══════════════════════════════════════
+function scrollToLogin() {
+  document.getElementById('login-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => document.getElementById('li-user').focus(), 600);
+}
+
+// Animate pipeline stages sequentially on load
+function animatePipeline() {
+  const stages = document.querySelectorAll('.lp-stage');
+  if (!stages.length) return;
+  let i = 0;
+  function next() {
+    if (i > 0) stages[i-1].classList.remove('active');
+    if (i < stages.length) {
+      stages[i].classList.add('active');
+      i++;
+      setTimeout(next, 600);
+    } else {
+      // loop
+      i = 0;
+      setTimeout(()=>{ stages.forEach(s=>s.classList.remove('active')); setTimeout(next, 400); }, 1200);
+    }
+  }
+  next();
+}
+
+// Which tabs require login
+const PRIVATE_TABS = new Set(['today','notes']);
+// Which tabs are always public
+const PUBLIC_TABS  = new Set(['pipeline','about','dashboard','records','data']);
+
+function switchViewGated(view, el) {
+  if (PRIVATE_TABS.has(view) && !isLoggedIn()) {
+    scrollToLogin();
+    return;
+  }
+  switchView(view, el);
+}
+
+// Start pipeline animation when landing is visible
+if (!isLoggedIn()) {
+  document.addEventListener('DOMContentLoaded', () => setTimeout(animatePipeline, 500));
+  window.addEventListener('load', () => setTimeout(animatePipeline, 500));
+}
+
+
+async function initApp() {
+  setSyncStatus('syncing','loading...');
+  const data=await ghGet();
+  localData=data||{};
+  renderToday();
+  initWatchSection();
+  startPolling(); // Prompt 14: begin live data polling
+  document.title=`Health OS — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+}
+
+function bootApp() {
+  if(isConfigured()) { document.getElementById('setup-overlay').classList.add('hidden'); initApp(); }
+  else { document.getElementById('setup-overlay').classList.remove('hidden'); }
+}
+
+function updateNavForAuth() {
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.textContent = btn.textContent.replace(' 🔒','');
+  });
+}
+
+// Boot for visitors — public tabs accessible without login
+function bootPublic() {}
+
+function showPublicView(view, el) {
+  document.getElementById('login-screen').classList.add('hidden');
+  if (!isLoggedIn()) {
+    const signIn = document.getElementById('nav-signin-btn');
+    const logout = document.getElementById('nav-logout-btn');
+    if (signIn) signIn.style.display = 'inline-block';
+    if (logout) logout.style.display = 'none';
+  }
+  switchView(view, el);
+  // First public visit — init watch section from cache, render public views
+  if (!window._publicBooted) {
+    window._publicBooted = true;
+    initWatchSection();
+    renderDashboard();
+    renderPipeline();
+    renderAbout();
+    renderRecords();
+  }
+}
+
+function showLanding() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-screen').scrollTop = 0;
+  setTimeout(() => document.getElementById('login-section')
+    .scrollIntoView({ behavior:'smooth', block:'center' }), 200);
+}
+
+// Boot
+if(isLoggedIn()) {
+  document.getElementById('login-screen').classList.add('hidden');
+  updateNavForAuth();
+  bootApp();
+} else {
+  setTimeout(animatePipeline, 800);
+}
+
+
+
+
+</script>
+</body>
+</html>

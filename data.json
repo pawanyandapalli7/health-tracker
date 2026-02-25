@@ -23,7 +23,11 @@
     "graceUsed": []
   },
   "2026-02-23": {
-    "checks": {},
+    "checks": {
+      "0-0": true,
+      "0-1": true,
+      "0-2": true
+    },
     "note": "",
     "mood": 4,
     "energy": 3,

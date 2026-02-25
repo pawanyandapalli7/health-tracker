@@ -3,7 +3,13 @@
     "checks": {
       "0-0": true,
       "0-1": true,
-      "0-2": true
+      "0-2": true,
+      "3-0": true,
+      "3-1": true,
+      "3-4": true,
+      "3-5": true,
+      "3-6": true,
+      "3-9": false
     },
     "note": "",
     "mood": 0,

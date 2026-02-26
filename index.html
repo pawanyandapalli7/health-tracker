@@ -11,9 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════
-   TOKENS — matches pawanyandapalli.com
-═══════════════════════════════════════ */
+
 :root {
   --bg: #080808;
   --surface: #0f0f0f;
@@ -52,7 +50,6 @@ body {
   cursor: none;
 }
 
-/* Custom cursor — matches portfolio */
 .cursor {
   position: fixed; width: 8px; height: 8px;
   background: var(--gold); border-radius: 50%;
@@ -69,14 +66,12 @@ body {
   transition: width .3s, height .3s, opacity .3s; opacity: .5;
 }
 
-/* Noise texture overlay — matches portfolio */
 body::after {
   content: ''; position: fixed; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none; z-index: 100;
 }
 
-/* Flowing pipeline background lines — matches portfolio */
 .pipeline-bg {
   position: fixed; top: 0; right: 0; width: 420px; height: 100vh;
   pointer-events: none; z-index: 0; opacity: .05; overflow: hidden;

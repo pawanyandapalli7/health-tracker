@@ -175,5 +175,17 @@
     "mood": 4,
     "energy": 5,
     "graceUsed": []
+  },
+  "2026-02-26": {
+    "checks": {
+      "0-1": true,
+      "0-2": true,
+      "0-0": true,
+      "1-0": true
+    },
+    "note": "",
+    "mood": 0,
+    "energy": 0,
+    "graceUsed": []
   }
 }

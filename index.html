@@ -11,7 +11,9 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-
+/* ═══════════════════════════════════════
+   TOKENS — matches pawanyandapalli.com
+═══════════════════════════════════════ */
 :root {
   --bg: #080808;
   --surface: #0f0f0f;
@@ -36,6 +38,37 @@
   --serif: 'Instrument Serif', serif;
 }
 
+/* ═══════════════════════════════════════
+   LIGHT MODE — matches pawanyandapalli.com
+═══════════════════════════════════════ */
+html.light {
+  --bg: #f7f3ee;
+  --surface: #ece6db;
+  --card: #ece6db;
+  --card2: #e4ddd0;
+  --border: #d4cab8;
+  --border2: #b8aa94;
+  --gold: #d4870a;
+  --gold2: #f0a020;
+  --gold-dim: #f0a020;
+  --blue: #00857a;
+  --green: #00857a;
+  --red: #c0392b;
+  --orange: #d4870a;
+  --purple: #00857a;
+  --text: #1a1510;
+  --muted: #7a7060;
+  --muted2: #5a5045;
+}
+html.light body::after { opacity: .012; }
+html.light .watch-card { background: var(--card); }
+html.light .chart-card { background: var(--card); }
+html.light .stat-tile  { background: var(--card); }
+html.light .section    { background: var(--card); }
+html.light .pipe-stage { background: var(--card); }
+html.light nav { background: rgba(247,243,238,0.96); }
+html.light .landing-nav { background: rgba(247,243,238,0.92); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
@@ -50,6 +83,7 @@ body {
   cursor: none;
 }
 
+/* Custom cursor — matches portfolio */
 .cursor {
   position: fixed; width: 8px; height: 8px;
   background: var(--gold); border-radius: 50%;
@@ -66,12 +100,14 @@ body {
   transition: width .3s, height .3s, opacity .3s; opacity: .5;
 }
 
+/* Noise texture overlay — matches portfolio */
 body::after {
   content: ''; position: fixed; inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   pointer-events: none; z-index: 100;
 }
 
+/* Flowing pipeline background lines — matches portfolio */
 .pipeline-bg {
   position: fixed; top: 0; right: 0; width: 420px; height: 100vh;
   pointer-events: none; z-index: 0; opacity: .05; overflow: hidden;
@@ -3677,5 +3713,50 @@ if(isLoggedIn()) {
 
 
 </script>
+<button id="themeToggle" aria-label="Toggle light/dark mode" title="Toggle theme">
+  <span class="theme-icon">☀️</span>
+</button>
+
+<style>
+#themeToggle {
+  position: fixed; bottom: 28px; right: 28px;
+  z-index: 9990;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  transition: border-color .2s, background .2s, transform .2s, box-shadow .2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+#themeToggle:hover {
+  border-color: var(--gold);
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(245,166,35,.2);
+}
+html.light #themeToggle {
+  background: var(--surface);
+  box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+</style>
+
+<script>
+// Theme toggle — matches portfolio
+const themeBtn  = document.getElementById('themeToggle');
+const themeIcon = themeBtn.querySelector('.theme-icon');
+const savedTheme = localStorage.getItem('hos-theme') || 'dark';
+if (savedTheme === 'light') {
+  document.documentElement.classList.add('light');
+  themeIcon.textContent = '🌙';
+}
+themeBtn.addEventListener('click', () => {
+  const isLight = document.documentElement.classList.toggle('light');
+  themeIcon.textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('hos-theme', isLight ? 'light' : 'dark');
+});
+</script>
+
 </body>
 </html>

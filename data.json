@@ -12,7 +12,9 @@
       "3-0": true,
       "3-4": true,
       "3-5": true,
-      "3-6": true
+      "3-6": true,
+      "3-9": false,
+      "3-10": true
     },
     "note": "",
     "mood": 0,

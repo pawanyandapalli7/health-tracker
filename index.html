@@ -69,6 +69,51 @@ html.light .pipe-stage { background: var(--card); }
 html.light nav { background: rgba(247,243,238,0.96); }
 html.light .landing-nav { background: rgba(247,243,238,0.92); }
 
+/* ── Light mode: force all text elements to be visible ── */
+html.light .watch-card-value  { color: var(--text) !important; }
+html.light .watch-card-label  { color: var(--muted); }
+html.light .watch-card-sub    { color: var(--muted); }
+html.light .momentum-score    { color: var(--text); }
+html.light .momentum-score.thriving { color: var(--green); }
+html.light .momentum-score.stable   { color: var(--gold); }
+html.light .momentum-score.risk     { color: var(--red); }
+html.light .stat-tile-value   { color: var(--text); }
+html.light .stat-tile-value.g { color: var(--green); }
+html.light .stat-tile-value.b { color: var(--blue); }
+html.light .stat-tile-value.o { color: var(--orange); }
+html.light .stat-tile-label   { color: var(--muted); }
+html.light .stat-tile-sub     { color: var(--muted); }
+html.light .focus-text        { color: var(--text); }
+html.light .focus-why         { color: var(--muted); }
+html.light .focus-eyebrow     { color: var(--muted); }
+html.light .momentum-eyebrow  { color: var(--muted); }
+html.light .momentum-status   { color: var(--muted); }
+html.light .check-label       { color: var(--text); }
+html.light .check-sub         { color: var(--muted); }
+html.light .mood-label        { color: var(--muted); }
+html.light .sec-label         { color: var(--gold); }
+html.light .view-title        { color: var(--text); }
+html.light .schema-field-name { color: var(--gold); }
+html.light .schema-field-type { color: var(--blue); }
+html.light .schema-field-value{ color: var(--text); }
+html.light .pipe-stage-name   { color: var(--text); }
+html.light .pipe-stage-desc   { color: var(--muted); }
+html.light .pipe-stat strong  { color: var(--text); }
+html.light .watch-title       { color: var(--text); }
+html.light .watch-last-sync   { color: var(--muted); }
+html.light .lf-title          { color: var(--text); }
+html.light .lf-desc           { color: var(--muted); }
+html.light .chart-title       { color: var(--text); }
+html.light .chart-sub         { color: var(--muted); }
+html.light h2, html.light h3  { color: var(--text); }
+html.light p                  { color: var(--text); }
+html.light .modal             { background: var(--card); color: var(--text); }
+html.light .modal h2          { color: var(--text); }
+html.light .field-label       { color: var(--muted); }
+html.light .mobile-tab-bar    { background: rgba(247,243,238,0.97); border-color: var(--border2); }
+html.light .mobile-tab-bar button { color: var(--muted); }
+html.light .mobile-tab-bar button.active { color: var(--gold); }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
@@ -270,7 +315,7 @@ body::after {
 
 .login-eyebrow { font-family: var(--mono); font-size: 9px; letter-spacing: .3em; color: var(--gold); text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; justify-content: center; }
 .login-eyebrow::before, .login-eyebrow::after { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--gold); opacity: 0.4; }
-.login-box h1 { font-family: var(--display); font-size: 2.6rem; letter-spacing: .03em; margin-bottom: 0.3rem; color: #f0ece4; }
+.login-box h1 { font-family: var(--display); font-size: 2.6rem; letter-spacing: .03em; margin-bottom: 0.3rem; color: var(--text); }
 .login-box h1 span { color: var(--gold); }
 .login-sub { font-size: 10px; color: var(--muted); margin-bottom: 2rem; letter-spacing: .05em; }
 .l-field { text-align: left; margin-bottom: 0.9rem; }
@@ -855,7 +900,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
 .pipe-stage:hover::before { transform:scaleX(1); }
 .pipe-stage-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem; }
 .pipe-stage-icon { font-size:1.3rem; }
-.pipe-stage-name { font-family:var(--display); font-size:1.1rem; letter-spacing:.03em; color:#f0ece4; }
+.pipe-stage-name { font-family:var(--display); font-size:1.1rem; letter-spacing:.03em; color:var(--text); }
 .pipe-stage-status { margin-left:auto; display:flex; align-items:center; gap:0.35rem; font-family:var(--mono); font-size:9px; letter-spacing:.08em; padding:3px 8px; border:1px solid; }
 .pipe-stage-status.ok   { border-color:rgba(0,180,166,0.3); color:var(--green); }
 .pipe-stage-status.warn { border-color:rgba(245,166,35,0.3); color:var(--gold); }
@@ -3129,7 +3174,7 @@ async function syncWatchData() {
     if (result?.clean) {
       const data = mapBackendToWatchData(result.clean);
       renderWatchCards(data);
-      localStorage.setItem('watch_cache', JSON.stringify({ data, freshness: result.freshness, ts: Date.now() }));
+      localStorage.setItem('watch_cache', JSON.stringify({ data, freshness: result.freshness, ts: Date.now(), v: 'v2' }));
       const fr = result.freshness;
       document.getElementById('watch-last-sync').textContent =
         fr?.status === 'fresh' ? `live · ${fr.age_hours}h ago` : `stale · ${fr.age_hours}h ago`;
@@ -3180,23 +3225,40 @@ function mapBackendToWatchData(clean) {
 // ─── Polling handled by main startPolling() above ────────────────────────────
 
 function initWatchSection() {
-  if (isWatchConnected()) {
+  // Invalidate old cache format (pre v2 field names)
+  const CACHE_VERSION = 'v2';
+  const cachedRaw = localStorage.getItem('watch_cache');
+  if (cachedRaw) {
+    try {
+      const parsed = JSON.parse(cachedRaw);
+      if (!parsed.v || parsed.v !== CACHE_VERSION) {
+        localStorage.removeItem('watch_cache');
+      }
+    } catch(e) { localStorage.removeItem('watch_cache'); }
+  }
+
+  // Show watch section if backend is configured OR watch is "connected"
+  if (isWatchConnected() || isBackendConfigured()) {
     showWatchCards();
-    // Show auto-sync note on weight tab
     const note = document.getElementById('weight-sync-note');
     if (note) note.style.display = 'block';
     // Load from cache immediately, then refresh
     const cached = localStorage.getItem('watch_cache');
     if (cached) {
-      const { data, ts } = JSON.parse(cached);
-      renderWatchCards(data);
-      const ago = Math.round((Date.now()-ts)/60000);
-      document.getElementById('watch-last-sync').textContent =
-        ago < 60 ? `synced ${ago}m ago` : `synced ${Math.round(ago/60)}h ago`;
+      try {
+        const { data, ts } = JSON.parse(cached);
+        if (data) renderWatchCards(data);
+        const ago = Math.round((Date.now()-ts)/60000);
+        document.getElementById('watch-last-sync').textContent =
+          ago < 60 ? `synced ${ago}m ago` : `synced ${Math.round(ago/60)}h ago`;
+      } catch(e) { /* ignore bad cache */ }
     }
-    // Auto-sync if cache is older than 30 minutes
-    const cache = cached ? JSON.parse(cached) : null;
-    if (!cache || Date.now() - cache.ts > 30 * 60 * 1000) syncWatchData();
+    // Always sync on init if backend configured
+    if (isBackendConfigured() && authToken) {
+      syncWatchData();
+    } else if (!cached || Date.now() - JSON.parse(cached||'{"ts":0}').ts > 30 * 60 * 1000) {
+      syncWatchData();
+    }
   }
 }
 

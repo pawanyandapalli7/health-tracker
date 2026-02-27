@@ -1485,16 +1485,16 @@ function applyLiveHealthData(payload) {
   const watchData = {
     steps:    c.steps,
     dist:     c.distance_km,
-    flights:  c.flights_climbed,
+    flights:  c.flights,
     stand:    c.stand_hours,
     workout:  c.workout_minutes,
     calories: c.calories,
     weight:   c.weight,
-    bodyfat:  c.body_fat,
+    bodyfat:  c.body_fat_pct,
     hr:       c.resting_hr,
     hrv:      c.hrv,
     spo2:     c.spo2,
-    resp:     c.respiratory_rate,
+    resp:     c.resp_rate,
     bp:       (c.bp_systolic && c.bp_diastolic) ? `${Math.round(c.bp_systolic)}/${Math.round(c.bp_diastolic)}` : null,
     bpSys:    c.bp_systolic,
     sleep:    c.sleep_hours,
@@ -2804,6 +2804,95 @@ function toggleWatchSetup() {
 function showWatchCards() {
   document.getElementById('watch-setup-banner').style.display = 'none';
   document.getElementById('watch-grid').style.display = 'grid';
+}
+
+// ─── RENDER WATCH CARD VALUES ─────────────────────────────────────────────────
+
+function renderWatchCards(d) {
+  if (!d) return;
+
+  function set(id, val, fmt) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = (val !== null && val !== undefined) ? fmt(val) : '—';
+  }
+  function bar(id, pct) {
+    const el = document.getElementById(id);
+    if (el) el.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  }
+
+  // Steps
+  set('w-steps', d.steps, v => v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v));
+  bar('w-steps-bar', (d.steps || 0) / 10000 * 100);
+
+  // Distance
+  set('w-dist', d.dist, v => v.toFixed(1)+' km');
+  bar('w-dist-bar', (d.dist || 0) / 10 * 100);
+
+  // Flights
+  set('w-flights', d.flights, v => Math.round(v));
+  bar('w-flights-bar', (d.flights || 0) / 20 * 100);
+
+  // Stand hours
+  set('w-stand', d.stand, v => Math.round(v)+'h');
+  const standEl = document.getElementById('w-stand-sub');
+  if (standEl && d.stand !== null) standEl.textContent = `${Math.round(d.stand)} of 12h`;
+  bar('w-stand-bar', (d.stand || 0) / 12 * 100);
+
+  // Workout
+  set('w-workout', d.workout, v => Math.round(v)+'m');
+  bar('w-workout-bar', (d.workout || 0) / 30 * 100);
+
+  // Calories (active)
+  set('w-cal', d.calories, v => Math.round(v)+' kcal');
+  bar('w-cal-bar', (d.calories || 0) / 600 * 100);
+
+  // Weight
+  set('w-weight', d.weight, v => v.toFixed(1)+' kg');
+  bar('w-weight-bar', d.weight ? Math.min(100, ((d.weight - 50) / 50) * 100) : 0);
+
+  // Body fat
+  set('w-bodyfat', d.bodyfat, v => v.toFixed(1)+'%');
+  bar('w-bodyfat-bar', d.bodyfat ? Math.min(100, d.bodyfat / 30 * 100) : 0);
+
+  // Heart rate
+  set('w-hr', d.hr, v => Math.round(v)+' bpm');
+  const hrColor = d.hr < 60 ? 'var(--green)' : d.hr < 80 ? '#f04f4f' : 'var(--orange)';
+  bar('w-hr-bar', d.hr ? Math.min(100, (d.hr / 100) * 100) : 0);
+
+  // HRV
+  set('w-hrv', d.hrv, v => Math.round(v)+' ms');
+  bar('w-hrv-bar', d.hrv ? Math.min(100, d.hrv / 80 * 100) : 0);
+
+  // SpO2
+  set('w-spo2', d.spo2, v => v.toFixed(0)+'%');
+  const spo2Sub = document.getElementById('w-spo2-sub');
+  if (spo2Sub && d.spo2 !== null) spo2Sub.textContent = d.spo2 >= 95 ? 'Normal' : d.spo2 >= 90 ? 'Low' : 'Very Low';
+  bar('w-spo2-bar', d.spo2 ? ((d.spo2 - 85) / 15) * 100 : 0);
+
+  // Respiratory rate
+  set('w-resp', d.resp, v => v.toFixed(1)+' /min');
+  bar('w-resp-bar', d.resp ? Math.min(100, d.resp / 20 * 100) : 0);
+
+  // Blood pressure
+  set('w-bp', d.bp, v => v);
+  bar('w-bp-bar', d.bpSys ? Math.min(100, (d.bpSys / 160) * 100) : 0);
+
+  // Sleep
+  set('w-sleep', d.sleep, v => v.toFixed(1)+'h');
+  const sleepSub = document.getElementById('w-sleep-sub');
+  if (sleepSub && d.sleep !== null) {
+    sleepSub.textContent = d.sleep >= 7 ? '✓ goal met' : d.sleep >= 6 ? 'nearly there' : 'below goal';
+  }
+  bar('w-sleep-bar', d.sleep ? Math.min(100, d.sleep / 9 * 100) : 0);
+
+  // Mindful
+  set('w-mindful', d.mindful, v => Math.round(v)+'m');
+  bar('w-mindful-bar', d.mindful ? Math.min(100, d.mindful / 20 * 100) : 0);
+
+  // VO2 Max
+  set('w-vo2', d.vo2, v => v.toFixed(1));
+  bar('w-vo2-bar', d.vo2 ? Math.min(100, (d.vo2 / 60) * 100) : 0);
 }
 
 // ─── BACKEND API FETCH ───────────────────────────────────────────────────────

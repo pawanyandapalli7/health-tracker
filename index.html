@@ -714,6 +714,140 @@ textarea.note-ta::placeholder { color: var(--muted); }
   .watch-grid { grid-template-columns: repeat(3,1fr); }
 }
 
+/* ═══════════════════════════════════════
+   MOBILE — full overhaul for < 600px
+═══════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* ── NAV: hide desktop tabs, show logo only ── */
+  nav {
+    padding: 0.65rem 1rem;
+    gap: 0.5rem;
+  }
+  .nav-tabs { display: none; }
+  .nav-right { gap: 0.4rem; }
+  .nav-logo { font-size: 1.1rem; }
+  .icon-btn { padding: 0.28rem 0.55rem; font-size: 8px; }
+  .sync-pill span#slbl { display: none; }
+
+  /* ── BOTTOM TAB BAR ── */
+  .mobile-tab-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(8,8,8,0.97);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border2);
+    z-index: 200;
+    padding: 0 0 env(safe-area-inset-bottom, 8px);
+  }
+  .mobile-tab-bar button {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    background: none; border: none; cursor: pointer;
+    padding: 8px 4px 6px;
+    color: var(--muted);
+    font-family: var(--mono); font-size: 8px; letter-spacing: .08em; text-transform: uppercase;
+    transition: color .2s;
+  }
+  .mobile-tab-bar button .tab-icon { font-size: 18px; line-height: 1; }
+  .mobile-tab-bar button.active { color: var(--gold); }
+  .mobile-tab-bar button.active .tab-icon { filter: drop-shadow(0 0 4px var(--gold)); }
+
+  /* Add bottom padding so content isn't hidden behind tab bar */
+  body { padding-bottom: 72px; }
+
+  /* ── VIEWS ── */
+  .view { padding: 0.85rem 0.85rem 1rem; }
+
+  /* ── COMMAND BAR ── */
+  .command-bar { flex-wrap: wrap; gap: 0.4rem; }
+  .date-ctrl { padding: 0.35rem 0.6rem; }
+  .copy-yesterday-btn { font-size: 0.68rem; padding: 0.3rem 0.65rem; }
+  .grace-pill { font-size: 0.72rem; }
+
+  /* ── FOCUS CARD ── */
+  .focus-card { padding: 0.85rem 1rem; gap: 0.6rem; }
+  .focus-icon { font-size: 1.4rem; }
+  .focus-text { font-size: 0.9rem; }
+
+  /* ── MOMENTUM + STATS ── */
+  .top-row { grid-template-columns: 1fr; gap: 0.75rem; }
+  .momentum-block { padding: 1rem; }
+  .momentum-score { font-size: 2.8rem; }
+  .stats-grid { grid-template-columns: repeat(3,1fr); gap: 0.5rem; }
+  .stat-tile { padding: 0.6rem 0.5rem; }
+  .stat-tile-value { font-size: 1.3rem; }
+
+  /* ── MOOD ROW ── */
+  .mood-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .mood-card { padding: 0.75rem 1rem; }
+
+  /* ── WATCH CARDS ── */
+  .watch-grid { grid-template-columns: repeat(2,1fr) !important; gap: 0.6rem; }
+  .watch-card { padding: 0.75rem 0.7rem; }
+  .watch-card-icon { font-size: 1.1rem; }
+  .watch-card-value { font-size: 1.3rem; }
+  .watch-card-label { font-size: 0.63rem; }
+  .watch-card-sub { font-size: 0.6rem; }
+  .watch-header { flex-wrap: wrap; gap: 0.4rem; }
+  .watch-title { font-size: 0.75rem; }
+
+  /* ── SECTION LABELS ── */
+  .sec-label { font-size: 0.68rem; margin-bottom: 0.6rem; }
+  .sec-label::after { width: 30px; }
+
+  /* ── TWO-COL → ONE COL ── */
+  .two-col { grid-template-columns: 1fr; }
+
+  /* ── HEATMAP ── */
+  .heatmap { grid-template-columns: repeat(10,1fr); gap: 2px; }
+  .heatmap-cell { height: 16px; border-radius: 2px; }
+
+  /* ── CHECKLIST ── */
+  .check-item { padding: 0.5rem 0.6rem; gap: 0.5rem; }
+  .check-label { font-size: 0.78rem; }
+
+  /* ── WEIGHT SECTION ── */
+  .weight-stats { grid-template-columns: repeat(2,1fr); gap: 0.5rem; }
+  .records-grid { grid-template-columns: repeat(2,1fr); gap: 0.5rem; }
+  .w-row { flex-wrap: wrap; gap: 0.4rem; }
+  .w-field { min-width: 0; flex: 1 1 100%; }
+
+  /* ── PIPELINE ── */
+  .pipe-stage { padding: 0.75rem 0.9rem; }
+  .pipe-stage-header { flex-wrap: wrap; gap: 0.3rem; }
+  .stack-grid { grid-template-columns: repeat(2,1fr); }
+
+  /* ── DATA / SCHEMA ── */
+  .schema-field { flex-wrap: wrap; gap: 0.2rem; }
+  .schema-field-name { min-width: 100px; }
+
+  /* ── NOTES ── */
+  .notes-editor { font-size: 0.88rem; }
+  #note-date-lbl { font-size: 0.72rem; }
+
+  /* ── ABOUT ── */
+  .lf-grid { grid-template-columns: 1fr; }
+
+  /* ── MODAL ── */
+  .modal { padding: 1.2rem 1rem; margin: 1rem; }
+  .modal-overlay { padding: 1rem 0.75rem; align-items: flex-end; }
+
+  /* ── GENERAL TYPOGRAPHY ── */
+  .view-title { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+}
+
+/* Landscape phone */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .mobile-tab-bar { padding: 0 0 4px; }
+  .mobile-tab-bar button { padding: 5px 4px; }
+  .mobile-tab-bar button .tab-icon { font-size: 15px; }
+  body { padding-bottom: 56px; }
+}
+
 /* ── PIPELINE VIEW ── */
 .pipeline-flow { display:flex; flex-direction:column; gap:0; margin-bottom:1rem; }
 .pipe-stage { background:var(--card); border:1px solid var(--border); border-radius:0; padding:1rem 1.25rem; position:relative; overflow:hidden; transition:border-color .25s; }
@@ -994,6 +1128,25 @@ textarea.note-ta::placeholder { color: var(--muted); }
     <button class="landing-signin-btn" id="nav-signin-btn" onclick="showLanding()" style="display:none;font-size:0.72rem;padding:0.4rem 1rem;">Sign In</button>
   </div>
 </nav>
+
+<!-- ═══════ MOBILE BOTTOM TAB BAR ═══════ -->
+<div class="mobile-tab-bar" id="mobile-tab-bar" style="display:none">
+  <button class="active" id="mtab-today" onclick="mobileTab('today',this)">
+    <span class="tab-icon">📅</span>Today
+  </button>
+  <button id="mtab-dashboard" onclick="mobileTab('dashboard',this)">
+    <span class="tab-icon">📊</span>Dash
+  </button>
+  <button id="mtab-pipeline" onclick="mobileTab('pipeline',this)">
+    <span class="tab-icon">⚡</span>Pipeline
+  </button>
+  <button id="mtab-data" onclick="mobileTab('data',this)">
+    <span class="tab-icon">🔬</span>Data
+  </button>
+  <button id="mtab-notes" onclick="mobileTab('notes',this)">
+    <span class="tab-icon">📝</span>Notes
+  </button>
+</div>
 
 <!-- ═══════════════════════════════════════
      TODAY VIEW
@@ -2384,6 +2537,32 @@ function switchView(view, btn) {
   if(view==='pipeline') renderPipeline();
   if(view==='data') renderDataInspector();
   if(view==='about') renderAbout();
+  // Sync mobile tab bar
+  document.querySelectorAll('.mobile-tab-bar button').forEach(b=>b.classList.remove('active'));
+  const mtab = document.getElementById(`mtab-${view}`);
+  if(mtab) mtab.classList.add('active');
+  // Scroll to top on mobile tab change
+  if(window.innerWidth <= 600) window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── MOBILE TAB BAR ────────────────────────────────────────────────────────────
+function mobileTab(view, btn) {
+  // Determine if gated
+  if(view === 'today' || view === 'notes') {
+    const fakeNavBtn = document.querySelector(`.nav-tab[onclick*="'${view}'"]`);
+    switchViewGated(view, btn);
+  } else {
+    showPublicView(view, btn);
+  }
+}
+
+function initMobileTabBar() {
+  const bar = document.getElementById('mobile-tab-bar');
+  if(!bar) return;
+  const isMobile = () => window.innerWidth <= 600;
+  const update = () => { bar.style.display = isMobile() ? 'flex' : 'none'; };
+  update();
+  window.addEventListener('resize', update);
 }
 
 function setSyncStatus(state, lbl) {
@@ -3745,12 +3924,14 @@ async function initApp() {
   renderToday();
   initWatchSection();
   startPolling(); // Prompt 14: begin live data polling
+  initMobileTabBar();
   document.title=`Health OS — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 }
 
 function bootApp() {
   if(isConfigured()) { document.getElementById('setup-overlay').classList.add('hidden'); initApp(); }
   else { document.getElementById('setup-overlay').classList.remove('hidden'); }
+  initMobileTabBar();
 }
 
 function updateNavForAuth() {

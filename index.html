@@ -11,7 +11,9 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-
+/* ═══════════════════════════════════════
+   TOKENS — matches pawanyandapalli.com
+═══════════════════════════════════════ */
 :root {
   --bg: #080808;
   --surface: #0f0f0f;
@@ -36,7 +38,9 @@
   --serif: 'Instrument Serif', serif;
 }
 
-
+/* ═══════════════════════════════════════
+   LIGHT MODE — matches pawanyandapalli.com
+═══════════════════════════════════════ */
 html.light {
   --bg: #f7f3ee;
   --surface: #ece6db;
@@ -611,7 +615,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
 .watch-card:hover::before { transform: scaleX(1); }
 .watch-card-icon { font-size: 1.1rem; margin-bottom: 0.4rem; }
 .watch-card-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 0.3rem; }
-.watch-card-value { font-family: var(--display); font-size: 1.5rem; line-height: 1; color: #f0ece4; }
+.watch-card-value { font-family: var(--display); font-size: 1.5rem; line-height: 1; color: var(--text); }
 .watch-card-unit { font-size: 0.65rem; color: var(--muted); margin-left: 2px; }
 .watch-card-sub { font-size: 9px; color: var(--muted); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; }
 .watch-card-bar { height: 1px; background: var(--border2); overflow: hidden; margin-top: 0.5rem; }

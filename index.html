@@ -11,9 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════
-   TOKENS — matches pawanyandapalli.com
-═══════════════════════════════════════ */
+
 :root {
   --bg: #080808;
   --surface: #0f0f0f;
@@ -38,9 +36,7 @@
   --serif: 'Instrument Serif', serif;
 }
 
-/* ═══════════════════════════════════════
-   LIGHT MODE — matches pawanyandapalli.com
-═══════════════════════════════════════ */
+
 html.light {
   --bg: #f7f3ee;
   --surface: #ece6db;
@@ -3162,6 +3158,7 @@ function mapBackendToWatchData(clean) {
     calories: clean.calories     ?? null,
     weight:   clean.weight       ?? null,
     bodyfat:  clean.body_fat_pct ?? null,
+    bmi:      clean.bmi          ?? null,
     hr:       clean.resting_hr   ?? null,
     hrv:      clean.hrv          ?? null,
     spo2:     clean.spo2         ?? null,
@@ -3522,21 +3519,21 @@ function renderSchemaInspector() {
   } else if (currentSchemaLayer === 'clean') {
     // Show canonical schema with today's watch data mapped in
     const CANONICAL_FIELDS = [
-      ['date','string'],['steps','integer'],['distance_km','float'],['flights_climbed','integer'],
+      ['date','string'],['steps','integer'],['distance_km','float'],['flights','integer'],
       ['stand_hours','float'],['workout_minutes','float'],['calories','float'],
       ['sleep_hours','float'],['resting_hr','float'],['hrv','float'],
-      ['spo2','float'],['respiratory_rate','float'],['bp_systolic','float'],['bp_diastolic','float'],
-      ['weight','float'],['body_fat','float'],['mood','integer'],['energy','integer'],
+      ['spo2','float'],['resp_rate','float'],['bp_systolic','float'],['bp_diastolic','float'],
+      ['weight','float'],['body_fat_pct','float'],['bmi','float'],['mood','integer'],['energy','integer'],
       ['mindful_minutes','float'],['vo2_max','float'],['updated_at','timestamp'],
     ];
     const fieldMap = {
       date: todayKey(), steps: watchCache?.steps, distance_km: watchCache?.dist,
-      flights_climbed: watchCache?.flights, stand_hours: watchCache?.stand,
+      flights: watchCache?.flights, stand_hours: watchCache?.stand,
       workout_minutes: watchCache?.workout, calories: watchCache?.calories,
       sleep_hours: watchCache?.sleep, resting_hr: watchCache?.hr, hrv: watchCache?.hrv,
-      spo2: watchCache?.spo2, respiratory_rate: watchCache?.resp,
+      spo2: watchCache?.spo2, resp_rate: watchCache?.resp,
       bp_systolic: watchCache?.bpSys, bp_diastolic: null,
-      weight: watchCache?.weight, body_fat: watchCache?.bodyfat,
+      weight: watchCache?.weight, body_fat_pct: watchCache?.bodyfat, bmi: watchCache?.bmi,
       mood: (localData[todayKey()]||{}).mood||null,
       energy: (localData[todayKey()]||{}).energy||null,
       mindful_minutes: watchCache?.mindful, vo2_max: watchCache?.vo2,

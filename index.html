@@ -1971,12 +1971,62 @@ function initDatePicker() {
   document.getElementById('next-btn').disabled = isToday();
   document.getElementById('today-badge').style.display = isToday() ? 'inline' : 'none';
 }
-function onDateChange(v) { if(!v) return; activeKey=v; initDatePicker(); renderToday(); }
+function onDateChange(v) { if(!v) return; activeKey=v; initDatePicker(); renderToday(); fetchHealthForDate(v); }
 function shiftDay(d) {
   const dt = new Date(activeKey+'T12:00:00'); dt.setDate(dt.getDate()+d);
   const nk = localDateKey(dt);
   if(nk > todayKey()) return;
   activeKey=nk; document.getElementById('date-picker').value=nk; initDatePicker(); renderToday();
+  fetchHealthForDate(nk);
+}
+
+// ── Fetch health data for a specific date and update watch cards ──────────────
+async function fetchHealthForDate(date) {
+  if (!isBackendConfigured() || !authToken) return;
+
+  // Update sync label to show loading
+  const syncEl = document.getElementById('watch-last-sync');
+  if (syncEl) syncEl.textContent = 'loading...';
+
+  try {
+    const isToday = date === todayKey();
+    const url = isToday
+      ? `${BACKEND_URL}/api/health/latest`
+      : `${BACKEND_URL}/api/health/${date}`;
+
+    const r = await fetch(url, {
+      headers: { 'Authorization': `Bearer ${authToken}` },
+    });
+
+    if (r.status === 404) {
+      // No data for this date — clear the cards
+      if (syncEl) syncEl.textContent = `no data for ${date}`;
+      renderWatchCards({});  // clears all to —
+      return;
+    }
+    if (r.status === 401) { doLogout(); return; }
+    if (!r.ok) throw new Error(`API ${r.status}`);
+
+    const payload = await r.json();
+    if (payload.clean) {
+      showWatchCards();
+      const data = mapBackendToWatchData(payload.clean);
+      renderWatchCards(data);
+      if (syncEl) {
+        syncEl.textContent = isToday
+          ? (payload.freshness?.age_hours < 1
+              ? `synced ${Math.round(payload.freshness.age_hours*60)}m ago`
+              : `synced ${payload.freshness?.age_hours}h ago`)
+          : `data for ${date}`;
+      }
+    } else {
+      if (syncEl) syncEl.textContent = `no data for ${date}`;
+      renderWatchCards({});
+    }
+  } catch(e) {
+    console.warn('[API] fetchHealthForDate failed:', e.message);
+    if (syncEl) syncEl.textContent = '⚠ offline';
+  }
 }
 
 // ═══════════════════════════════════════
@@ -3986,7 +4036,8 @@ async function initApp() {
   localData=data||{};
   renderToday();
   initWatchSection();
-  startPolling(); // Prompt 14: begin live data polling
+  startPolling();
+  fetchHealthForDate(todayKey()); // load today's watch data immediately
   initMobileTabBar();
   document.title=`Health OS — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 }

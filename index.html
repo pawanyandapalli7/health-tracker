@@ -3343,6 +3343,8 @@ function toggleWatchSetup() {
 }
 
 function showWatchCards() {
+  if (!isLoggedIn()) return; // public visitors never see watch cards
+  document.getElementById('watch-section').style.display = 'block';
   document.getElementById('watch-setup-banner').style.display = 'none';
   document.getElementById('watch-grid').style.display = 'grid';
 }

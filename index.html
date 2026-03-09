@@ -8,10 +8,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Health OS">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="favicon.svg">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/favicon-32.png" sizes="32x32">
-<link rel="icon" href="/favicon-16.png" sizes="16x16">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
@@ -453,7 +453,7 @@ nav {
 /* ═══════════════════════════════════════
    MOMENTUM + STATS ROW
 ═══════════════════════════════════════ */
-.top-row { display: grid; grid-template-columns: auto 1fr; gap: 1rem; margin-bottom: 1rem; }
+.top-row { display: grid; grid-template-columns: auto auto 1fr; gap: 1rem; margin-bottom: 1rem; align-items: stretch; }
 
 .momentum-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 1.3rem 1.5rem;
@@ -472,6 +472,54 @@ nav {
 .momentum-status.risk { color: var(--red); }
 .momentum-bar { width: 100%; height: 4px; background: var(--border2); border-radius: 100px; overflow: hidden; margin-top: 0.7rem; }
 .momentum-bar-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+/* ── RECOVERY RING ────────────────────────────────────────── */
+.recovery-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1.1rem 1.3rem; display: flex; align-items: center; gap: 1rem;
+  position: relative; overflow: hidden;
+}
+.recovery-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(62,207,130,0.06) 0%, transparent 70%); pointer-events: none; }
+.recovery-ring-wrap { flex-shrink: 0; }
+.recovery-ring-wrap svg { display: block; }
+.recovery-ring-circle-bg  { fill: none; stroke: var(--border2); stroke-width: 9; }
+.recovery-ring-circle-fill { fill: none; stroke-width: 9; stroke-linecap: round;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1), stroke 0.4s; }
+.recovery-ring-score { font-family: var(--display); font-size: 1.4rem; font-weight: 800; }
+.recovery-ring-label { font-family: var(--mono); font-size: 0.52rem; fill: var(--muted); letter-spacing: 1px; }
+.recovery-info { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.recovery-eyebrow { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.recovery-status { font-family: var(--display); font-size: 1.1rem; font-weight: 700; line-height: 1.1; }
+.recovery-advice { font-family: var(--mono); font-size: 0.68rem; color: var(--muted2); line-height: 1.5; margin-top: 0.2rem; }
+.recovery-components { display: flex; gap: 0.5rem; margin-top: 0.4rem; flex-wrap: wrap; }
+.recovery-comp { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); }
+.recovery-comp span { color: var(--text); font-weight: 600; }
+
+/* ── INSIGHT CARD ─────────────────────────────────────────── */
+.insight-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left-width: 3px; padding: 0.9rem 1.1rem;
+  display: flex; align-items: flex-start; gap: 0.8rem;
+}
+.insight-card.tone-positive  { border-left-color: var(--green); }
+.insight-card.tone-advisory  { border-left-color: var(--gold); }
+.insight-card.tone-caution   { border-left-color: var(--red); }
+.insight-card.tone-neutral   { border-left-color: var(--muted); }
+.insight-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+.insight-body { flex: 1; min-width: 0; }
+.insight-eyebrow { font-family: var(--mono); font-size: 0.58rem; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 0.3rem; }
+.insight-summary { font-size: 0.82rem; line-height: 1.6; color: var(--text); }
+.insight-signals { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.insight-signal { font-family: var(--mono); font-size: 0.62rem; padding: 2px 7px;
+  border: 1px solid var(--border); color: var(--muted2); }
+.insight-signal.good { border-color: var(--green); color: var(--green); }
+.insight-signal.warn { border-color: var(--red); color: var(--red); }
+.insight-signal.note { border-color: var(--gold); color: var(--gold); }
+
+/* light mode fixes */
+html.light .recovery-card { background: var(--card); }
+html.light .insight-card  { background: var(--card); }
 
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
 .stat-tile { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 1rem 1.1rem; }
@@ -823,6 +871,8 @@ textarea.note-ta::placeholder { color: var(--muted); }
   /* ── MOMENTUM + STATS ── */
   .top-row { grid-template-columns: 1fr; gap: 0.75rem; }
   .momentum-block { padding: 1rem; }
+  .recovery-card { flex-direction: row; }
+  .insight-card { flex-direction: row; }
   .momentum-score { font-size: 2.8rem; }
   .stats-grid { grid-template-columns: repeat(3,1fr); gap: 0.5rem; }
   .stat-tile { padding: 0.6rem 0.5rem; }
@@ -896,7 +946,87 @@ textarea.note-ta::placeholder { color: var(--muted); }
   body { padding-bottom: 56px; }
 }
 
-/* ── PIPELINE VIEW ── */
+/* ── PUBLIC MODE: blur exact values, show cards + trends ── */
+.public-blur .watch-card-value { filter: blur(6px); user-select: none; pointer-events: none; }
+.public-blur .watch-card-value::after {
+  content: '🔒'; position: absolute; font-size: 0.7rem;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  filter: none;
+}
+.public-unlock-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--card); border: 1px solid var(--border);
+  padding: 0.6rem 1rem; margin-bottom: 0.75rem; gap: 1rem;
+  font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+}
+.public-unlock-banner strong { color: var(--text); }
+.public-unlock-btn {
+  background: var(--gold); color: #000; border: none; padding: 0.3rem 0.8rem;
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; letter-spacing: .05em;
+}
+.public-unlock-btn:hover { opacity: 0.85; }
+
+/* ── RECOVERY RING + INSIGHT CARD ROW ── */
+.recovery-insight-row {
+  display: grid; grid-template-columns: 160px 1fr; gap: 1rem; margin-bottom: 1rem; align-items: start;
+}
+.recovery-ring-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1rem 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+}
+.recovery-ring-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.recovery-ring-wrap { position: relative; }
+.recovery-status {
+  font-family: var(--display); font-size: 0.95rem; font-weight: 700; color: var(--text); text-align: center;
+}
+.recovery-advice { font-family: var(--mono); font-size: 0.62rem; color: var(--muted2); text-align: center; line-height: 1.4; }
+
+.insight-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1rem 1.1rem; display: flex; flex-direction: column; gap: 0.6rem;
+}
+.insight-card.tone-positive { border-left: 3px solid var(--green); }
+.insight-card.tone-advisory  { border-left: 3px solid var(--gold); }
+.insight-card.tone-caution   { border-left: 3px solid var(--red); }
+.insight-card.tone-neutral   { border-left: 3px solid var(--border); }
+.insight-header { display: flex; align-items: center; gap: 0.5rem; }
+.insight-icon { font-size: 1rem; }
+.insight-label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); flex: 1; }
+.insight-tone-badge {
+  font-family: var(--mono); font-size: 0.55rem; padding: 2px 7px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700;
+}
+.insight-tone-badge.positive { background: rgba(62,207,130,0.15); color: var(--green); }
+.insight-tone-badge.advisory { background: rgba(240,192,64,0.15);  color: var(--gold); }
+.insight-tone-badge.caution  { background: rgba(231,76,60,0.15);   color: var(--red); }
+.insight-tone-badge.neutral  { background: var(--surface); color: var(--muted); }
+.insight-summary { font-size: 0.84rem; color: var(--text); line-height: 1.55; }
+.insight-signals { display: flex; flex-direction: column; gap: 0.25rem; }
+.insight-signal {
+  font-family: var(--mono); font-size: 0.68rem; color: var(--muted2);
+  padding: 0.2rem 0; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.4rem;
+}
+.insight-signal .sig-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.insight-signal.warn .sig-dot { background: var(--red); }
+.insight-signal.good .sig-dot { background: var(--green); }
+.insight-signal.note .sig-dot { background: var(--gold); }
+@media (max-width: 600px) {
+  .recovery-insight-row { grid-template-columns: 1fr; }
+  .recovery-ring-card { flex-direction: row; align-items: center; gap: 0.75rem; padding: 0.75rem; }
+  .recovery-ring-wrap svg { width: 70px; height: 70px; }
+}
+
+/* ── PUBLIC TREND TILES ── */
+.pub-trend-tile {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 0.65rem 0.75rem; display: flex; flex-direction: column; gap: 0.2rem;
+}
+.pub-trend-label { font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: .15em; text-transform: uppercase; }
+.pub-trend-avg { font-family: var(--display); font-size: 1.2rem; color: var(--text); line-height: 1; }
+.pub-trend-unit { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); }
+.pub-trend-arrow { font-family: var(--mono); font-size: 0.65rem; letter-spacing: .05em; }
+@media (max-width: 680px) { #public-trends-row { grid-template-columns: repeat(3,1fr) !important; } }
+@media (max-width: 400px) { #public-trends-row { grid-template-columns: repeat(2,1fr) !important; } }
 .pipeline-flow { display:flex; flex-direction:column; gap:0; margin-bottom:1rem; }
 .pipe-stage { background:var(--card); border:1px solid var(--border); border-radius:0; padding:1rem 1.25rem; position:relative; overflow:hidden; transition:border-color .25s; }
 .pipe-stage::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--gold),var(--blue)); transform:scaleX(0); transform-origin:left; transition:transform .35s; }
@@ -1038,7 +1168,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
     </div>
 
     <div class="landing-cta-row">
-      <button class="landing-cta-primary" onclick="scrollToLogin()">View Live Dashboard →</button>
+      <button class="landing-cta-primary" onclick="showPublicView('today', document.getElementById('ntab-today'))">View Live Dashboard →</button>
       <a href="https://github.com/pawanyandapalli7/health-tracker" target="_blank">
         <button class="landing-cta-secondary">View Source on GitHub ↗</button>
       </a>
@@ -1139,7 +1269,10 @@ textarea.note-ta::placeholder { color: var(--muted); }
 
 <!-- ═══════ GITHUB SETUP ═══════ -->
 <div class="overlay hidden" id="setup-overlay">
-  <div class="modal">
+  <div class="modal" style="position:relative">
+    <button onclick="document.getElementById('setup-overlay').classList.add('hidden')"
+            style="position:absolute;top:0.8rem;right:0.8rem;background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;padding:0.2rem 0.5rem;"
+            title="Close">✕</button>
     <h2>Connect GitHub Storage</h2>
     <p>Your data saves privately to your GitHub repo. You only need to do this once.</p>
     <div class="m-field">
@@ -1161,13 +1294,14 @@ textarea.note-ta::placeholder { color: var(--muted); }
 <nav>
   <div class="nav-logo">Health OS <span>/ pawan</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchViewGated('today',this)">Today 🔒</button>
-    <button class="nav-tab" onclick="showPublicView('dashboard',this)">Dashboard</button>
-    <button class="nav-tab" onclick="showPublicView('records',this)">Records</button>
-    <button class="nav-tab" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
-    <button class="nav-tab" onclick="showPublicView('data',this)">🔬 Data</button>
-    <button class="nav-tab" onclick="showPublicView('about',this)">About</button>
-    <button class="nav-tab" onclick="switchViewGated('notes',this)">Notes 🔒</button>
+    <button class="nav-tab" id="ntab-home" onclick="showLanding()">Home</button>
+    <button class="nav-tab active" id="ntab-today" onclick="showPublicView('today',this)">Today</button>
+    <button class="nav-tab" id="ntab-dashboard" onclick="showPublicView('dashboard',this)">Dashboard</button>
+    <button class="nav-tab" id="ntab-records" onclick="showPublicView('records',this)">Records</button>
+    <button class="nav-tab" id="ntab-pipeline" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
+    <button class="nav-tab" id="ntab-data" onclick="showPublicView('data',this)">🔬 Data</button>
+    <button class="nav-tab" id="ntab-about" onclick="showPublicView('about',this)">About</button>
+    <button class="nav-tab" id="ntab-notes" onclick="switchViewGated('notes',this)">Notes</button>
   </div>
   <div class="nav-right">
     <div class="sync-pill"><div class="sdot" id="sdot"></div><span id="slbl">—</span></div>
@@ -1179,6 +1313,9 @@ textarea.note-ta::placeholder { color: var(--muted); }
 
 <!-- ═══════ MOBILE BOTTOM TAB BAR ═══════ -->
 <div class="mobile-tab-bar" id="mobile-tab-bar" style="display:none">
+  <button id="mtab-home" onclick="showLanding()">
+    <span class="tab-icon">🏠</span>Home
+  </button>
   <button class="active" id="mtab-today" onclick="mobileTab('today',this)">
     <span class="tab-icon">📅</span>Today
   </button>
@@ -1187,9 +1324,6 @@ textarea.note-ta::placeholder { color: var(--muted); }
   </button>
   <button id="mtab-pipeline" onclick="mobileTab('pipeline',this)">
     <span class="tab-icon">⚡</span>Pipeline
-  </button>
-  <button id="mtab-data" onclick="mobileTab('data',this)">
-    <span class="tab-icon">🔬</span>Data
   </button>
   <button id="mtab-notes" onclick="mobileTab('notes',this)">
     <span class="tab-icon">📝</span>Notes
@@ -1245,8 +1379,42 @@ textarea.note-ta::placeholder { color: var(--muted); }
     </div>
   </div>
 
-  <!-- Momentum + Stats -->
+  <!-- Health Insight Card (from API intelligence layer) -->
+  <div class="insight-card tone-neutral" id="insight-card" style="display:none">
+    <div class="insight-icon" id="insight-icon">💡</div>
+    <div class="insight-body">
+      <div class="insight-eyebrow">Health Intelligence</div>
+      <div class="insight-summary" id="insight-summary">Analyzing your health data...</div>
+      <div class="insight-signals" id="insight-signals"></div>
+    </div>
+  </div>
+
+  <!-- Recovery Ring + Momentum + Stats -->
   <div class="top-row">
+    <!-- Recovery Ring (API-driven) -->
+    <div class="recovery-card" id="recovery-card" style="display:none">
+      <div class="recovery-ring-wrap">
+        <svg viewBox="0 0 90 90" width="80" height="80">
+          <circle class="recovery-ring-circle-bg"  cx="45" cy="45" r="36"/>
+          <circle class="recovery-ring-circle-fill" id="recovery-ring-fill" cx="45" cy="45" r="36"
+                  stroke="#3ecf82"
+                  stroke-dasharray="226.2"
+                  stroke-dashoffset="226.2"/>
+          <text id="recovery-ring-score" class="recovery-ring-score" x="45" y="49"
+                text-anchor="middle" dominant-baseline="middle"
+                font-family="'Bebas Neue',sans-serif" font-size="22" fill="#3ecf82">—</text>
+          <text class="recovery-ring-label" x="45" y="62"
+                text-anchor="middle" font-family="monospace" font-size="6" fill="#888">RECOVERY</text>
+        </svg>
+      </div>
+      <div class="recovery-info">
+        <div class="recovery-eyebrow">Recovery</div>
+        <div class="recovery-status" id="recovery-status">—</div>
+        <div class="recovery-advice" id="recovery-advice"></div>
+        <div class="recovery-components" id="recovery-components"></div>
+      </div>
+    </div>
+
     <div class="momentum-card">
       <div class="momentum-eyebrow">Momentum</div>
       <div class="momentum-score" id="m-score">—</div>
@@ -1283,6 +1451,11 @@ textarea.note-ta::placeholder { color: var(--muted); }
       <div class="rating-dots" id="energy-dots"></div>
     </div>
   </div>
+
+  <!-- Recovery + Insight Row -->
+
+  <!-- Public Trends Row (visible to all, no exact values) -->
+  <div id="public-trends-row" style="display:none;grid-template-columns:repeat(6,1fr);gap:0.6rem;margin-bottom:1rem;"></div>
 
   <!-- Apple Watch -->
   <div class="watch-section" id="watch-section">
@@ -1677,12 +1850,45 @@ async function fetchLiveHealth() {
   }
 }
 
+// ── Fetch aggregated metrics (baselines, trends, training load) ───────────────
+async function fetchHealthMetrics() {
+  if (!isBackendConfigured() || !authToken) return null;
+  try {
+    const r = await fetch(`${BACKEND_URL}/api/health/metrics`, {
+      headers: { 'Authorization': `Bearer ${authToken}` },
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) {
+    console.warn('[API] fetchHealthMetrics failed:', e.message);
+    return null;
+  }
+}
+
+// ── Fetch last 7 daily insights ───────────────────────────────────────────────
+async function fetchHealthInsights() {
+  if (!isBackendConfigured() || !authToken) return null;
+  try {
+    const r = await fetch(`${BACKEND_URL}/api/health/insights`, {
+      headers: { 'Authorization': `Bearer ${authToken}` },
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) {
+    console.warn('[API] fetchHealthInsights failed:', e.message);
+    return null;
+  }
+}
+
 function applyLiveHealthData(payload) {
   const c = payload.clean;
   const d = payload.derived;
   if (!c) return;
 
-  // Populate watch cards from canonical backend data
+  // Store derived globally so renderMomentum can use health-based momentum
+  window._latestApiDerived = d;
+
+  // ── Watch cards ────────────────────────────────────────────────────────────
   const watchData = {
     steps:    c.steps,
     dist:     c.distance_km,
@@ -1706,7 +1912,6 @@ function applyLiveHealthData(payload) {
   if (isWatchConnected() || Object.values(watchData).some(v => v !== null)) {
     showWatchCards();
     renderWatchCards(watchData);
-    // Update sync label with freshness from backend
     const freshness = payload.freshness;
     if (freshness) {
       document.getElementById('watch-last-sync').textContent =
@@ -1716,14 +1921,67 @@ function applyLiveHealthData(payload) {
     }
   }
 
-  // Use backend-computed momentum if available
+  // ── Momentum (from backend derived) ───────────────────────────────────────
   if (d?.momentum?.score !== undefined) {
-    document.getElementById('momentum-bar').style.width = d.momentum.score + '%';
-    document.getElementById('momentum-score').textContent = d.momentum.score;
-    document.getElementById('momentum-label').textContent = d.momentum.label;
+    const s = d.momentum.score;
+    const cls = s >= 80 ? 'thriving' : s >= 55 ? 'stable' : 'risk';
+    const scoreEl = document.getElementById('momentum-score') || document.getElementById('m-score');
+    const labelEl = document.getElementById('momentum-label') || document.getElementById('m-status');
+    const barEl   = document.getElementById('momentum-bar-fill') || document.getElementById('m-bar');
+    if (scoreEl) { scoreEl.textContent = s; scoreEl.className = 'momentum-score ' + cls; }
+    if (labelEl) { labelEl.textContent = d.momentum.label; labelEl.className = 'momentum-status ' + cls; }
+    if (barEl) {
+      barEl.style.width = s + '%';
+      barEl.style.background = cls === 'thriving' ? 'var(--green)' : cls === 'stable' ? 'var(--gold)' : 'var(--red)';
+    }
   }
 
-  // Show quality flags if any
+  // ── Recovery ring ──────────────────────────────────────────────────────────
+  const rec = d?.recovery;
+  if (rec?.score != null) {
+    const card      = document.getElementById('recovery-card');
+    const ringFill  = document.getElementById('recovery-ring-fill');
+    const scoreText = document.getElementById('recovery-ring-score');
+    const statusEl  = document.getElementById('recovery-status');
+    const adviceEl  = document.getElementById('recovery-advice');
+    const compsEl   = document.getElementById('recovery-components');
+
+    const circumference = 2 * Math.PI * 36; // r=36
+    const offset = circumference - (rec.score / 100) * circumference;
+    const color  = rec.color === 'green' ? '#3ecf82' : rec.color === 'amber' ? '#f0c040' : '#e74c3c';
+
+    if (card)      card.style.display     = 'flex';
+    if (ringFill)  { ringFill.style.strokeDasharray  = circumference; ringFill.style.strokeDashoffset = offset; ringFill.setAttribute('stroke', color); }
+    if (scoreText) { scoreText.textContent = rec.score; scoreText.setAttribute('fill', color); }
+    if (statusEl)  { statusEl.textContent = rec.label; statusEl.style.color = color; }
+    if (adviceEl)  adviceEl.textContent = rec.advice ?? '';
+    if (compsEl && Array.isArray(rec.components)) {
+      compsEl.innerHTML = rec.components.map(c2 =>
+        `<div class="recovery-comp">${c2.name.replace('_',' ')} <span>${Math.round(c2.value)}</span></div>`
+      ).join('');
+    }
+  }
+
+  // ── Insight card ───────────────────────────────────────────────────────────
+  const insight = payload.insight ?? d?.insight;
+  if (insight?.summary) {
+    const card    = document.getElementById('insight-card');
+    const summary = document.getElementById('insight-summary');
+    const signals = document.getElementById('insight-signals');
+    const icon    = document.getElementById('insight-icon');
+
+    const TONE_ICON = { positive: '✅', advisory: '⚠️', caution: '🔴', neutral: '🔵' };
+    if (card)    { card.style.display = 'flex'; card.className = `insight-card tone-${insight.tone ?? 'neutral'}`; }
+    if (icon)    icon.textContent    = TONE_ICON[insight.tone] ?? '💡';
+    if (summary) summary.textContent = insight.summary;
+    if (signals && Array.isArray(insight.signals)) {
+      signals.innerHTML = insight.signals.map(sig =>
+        `<div class="insight-signal ${sig.type}">${sig.msg}</div>`
+      ).join('');
+    }
+  }
+
+  // ── Quality flags ──────────────────────────────────────────────────────────
   if (c.quality_flags?.length > 0) {
     console.warn('[Health OS] Quality flags:', c.quality_flags);
   }
@@ -2047,8 +2305,12 @@ function calcStats(dayData) {
   return {total:all.length, done, pct: all.length ? Math.round(done/all.length*100) : 0};
 }
 
+// calcMomentum: uses API-derived health momentum if available, else falls back to task-based
 function calcMomentum(days7) {
-  // avg + consistency bonus - volatility penalty
+  // Prefer the backend health momentum score if we have live data
+  const apiScore = window._latestApiDerived?.momentum?.score;
+  if (apiScore != null) return apiScore;
+  // Fallback: task-completion based momentum (used before backend is connected)
   if(!days7.length) return 0;
   const avgs = days7.map(k=>localData[k]?calcStats(localData[k]).pct:0);
   const avg = avgs.reduce((a,b)=>a+b,0)/avgs.length;
@@ -2629,6 +2891,8 @@ function switchView(view, btn) {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`view-${view}`).classList.add('active');
   if(btn) btn.classList.add('active');
+  // Always hide landing when entering a view
+  document.getElementById('login-screen').classList.add('hidden');
   if(view==='dashboard') renderDashboard();
   if(view==='notes') renderNotes();
   if(view==='records') renderRecords();
@@ -3989,8 +4253,12 @@ function renderContributionHeatmap() {
 
 
 function scrollToLogin() {
-  document.getElementById('login-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(() => document.getElementById('li-user').focus(), 600);
+  document.getElementById('login-screen').classList.remove('hidden');
+  setTimeout(() => {
+    const el = document.getElementById('login-section');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => document.getElementById('li-user').focus(), 400);
+  }, 100);
 }
 
 // Animate pipeline stages sequentially on load
@@ -4014,9 +4282,9 @@ function animatePipeline() {
 }
 
 // Which tabs require login
-const PRIVATE_TABS = new Set(['today','notes']);
+const PRIVATE_TABS = new Set(['notes']);
 // Which tabs are always public
-const PUBLIC_TABS  = new Set(['pipeline','about','dashboard','records','data']);
+const PUBLIC_TABS  = new Set(['today','pipeline','about','dashboard','records','data']);
 
 function switchViewGated(view, el) {
   if (PRIVATE_TABS.has(view) && !isLoggedIn()) {
@@ -4041,6 +4309,16 @@ async function initApp() {
   initWatchSection();
   startPolling();
   fetchHealthForDate(todayKey()); // load today's watch data immediately
+  // Also load metrics for baselines and training load
+  fetchHealthMetrics().then(metrics => {
+    if (!metrics?.available) return;
+    window._healthMetrics = metrics;
+    // Update training load stat if displayed
+    const tlEl = document.getElementById('training-load-val');
+    if (tlEl && metrics.training_load?.acute_7d != null) {
+      tlEl.textContent = metrics.training_load.acute_7d + ' min';
+    }
+  });
   initMobileTabBar();
   document.title=`Health OS — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
 }
@@ -4052,13 +4330,150 @@ function bootApp() {
 }
 
 function updateNavForAuth() {
-  document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.textContent = btn.textContent.replace(' 🔒','');
-  });
+  // Toggle sign in / logout buttons
+  const signIn = document.getElementById('nav-signin-btn');
+  const logout = document.getElementById('nav-logout-btn');
+  if (signIn) signIn.style.display = 'none';
+  if (logout) logout.style.display = 'inline-flex';
+  // Remove public blur — owner sees exact values
+  const grid = document.getElementById('watch-grid');
+  if (grid) grid.classList.remove('public-blur');
+  const banner = document.getElementById('public-unlock-banner');
+  if (banner) banner.remove();
+  // Hide public trends row — owner sees full watch cards instead
+  const trendsRow = document.getElementById('public-trends-row');
+  if (trendsRow) trendsRow.style.display = 'none';
 }
 
 // Boot for visitors — public tabs accessible without login
 function bootPublic() {}
+
+// ── PUBLIC HEALTH DATA: fetch latest for public dashboard ────────────────────
+async function fetchPublicHealthData() {
+  if (!isBackendConfigured()) return;
+  try {
+    const r = await fetch(`${BACKEND_URL}/api/health/latest`, {
+      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
+    });
+    if (!r.ok) return;
+    const payload = await r.json();
+    if (!payload.clean) return;
+
+    const c = payload.clean;
+    const d = payload.derived;
+
+    // ── Momentum ──────────────────────────────────────────────────────────────
+    if (d?.momentum?.score !== undefined) {
+      const s   = d.momentum.score;
+      const cls = s >= 80 ? 'thriving' : s >= 55 ? 'stable' : 'risk';
+      const scoreEl = document.getElementById('momentum-score') || document.getElementById('m-score');
+      const labelEl = document.getElementById('momentum-label') || document.getElementById('m-status');
+      const barEl   = document.getElementById('momentum-bar-fill') || document.getElementById('m-bar');
+      if (scoreEl) { scoreEl.textContent = s; scoreEl.className = 'momentum-score ' + cls; }
+      if (labelEl) labelEl.textContent = d.momentum.label;
+      if (barEl)   barEl.style.width = s + '%';
+    }
+
+    // ── Public: show recovery score (ring) — blurred value for non-auth ───────
+    const rec = d?.recovery;
+    if (rec?.score != null && !isLoggedIn()) {
+      document.getElementById('recovery-insight-row').style.display = 'grid';
+      const statusEl = document.getElementById('recovery-status');
+      const adviceEl = document.getElementById('recovery-advice');
+      // Show status label but blur the numeric score for public
+      if (statusEl) { statusEl.textContent = rec.label; statusEl.style.color = rec.color === 'green' ? 'var(--green)' : rec.color === 'amber' ? 'var(--gold)' : 'var(--red)'; }
+      if (adviceEl) adviceEl.textContent = rec.advice ?? '';
+      // Score ring — show blurred
+      const scoreText = document.getElementById('recovery-ring-score');
+      if (scoreText) { scoreText.textContent = '?'; scoreText.style.filter = 'blur(5px)'; }
+    }
+
+    // ── Insight card — public sees summary but not signals ────────────────────
+    const insight = payload.insight ?? d?.insight;
+    if (insight?.summary && !isLoggedIn()) {
+      document.getElementById('recovery-insight-row').style.display = 'grid';
+      const card    = document.getElementById('insight-card');
+      const summary = document.getElementById('insight-summary');
+      const badge   = document.getElementById('insight-tone-badge');
+      const icon    = document.getElementById('insight-icon');
+      const TONE_ICON = { positive: '✅', advisory: '⚠️', caution: '🔴', neutral: '🔵' };
+      if (icon)    icon.textContent    = TONE_ICON[insight.tone] ?? '🧠';
+      if (summary) summary.textContent = insight.summary;
+      if (card)    card.className      = `insight-card tone-${insight.tone}`;
+      if (badge)   { badge.textContent = insight.tone; badge.className = `insight-tone-badge ${insight.tone}`; }
+      // Signals hidden for public — show sign-in nudge instead
+      const signals = document.getElementById('insight-signals');
+      if (signals) signals.innerHTML = `<div class="insight-signal note"><span class="sig-dot" style="background:var(--muted)"></span><span style="color:var(--muted)">Sign in to see all health signals</span></div>`;
+    }
+
+    // ── Trends row ────────────────────────────────────────────────────────────
+    if (d?.rolling?.trends) {
+      renderPublicTrends(d.rolling.trends, d.rolling.roll7);
+    }
+
+    // ── Blurred watch cards ───────────────────────────────────────────────────
+    const watchData = mapBackendToWatchData(c);
+    if (Object.values(watchData).some(v => v !== null)) {
+      showWatchCards();
+      renderWatchCards(watchData);
+      const grid = document.getElementById('watch-grid');
+      if (grid) grid.classList.add('public-blur');
+      injectPublicUnlockBanner();
+      const syncEl = document.getElementById('watch-last-sync');
+      if (syncEl && payload.freshness) {
+        syncEl.textContent = payload.freshness.age_hours < 1
+          ? `live · ${Math.round(payload.freshness.age_hours*60)}m ago`
+          : `${payload.freshness.age_hours}h ago`;
+      }
+    }
+  } catch(e) {
+    console.warn('[public] fetchPublicHealthData failed:', e.message);
+  }
+}
+
+function renderPublicTrends(trends, roll7) {
+  const ARROW = { up: '↑', down: '↓', flat: '→' };
+  const COLOR = { up: 'var(--green)', down: 'var(--red)', flat: 'var(--muted)' };
+  const GOOD_UP = new Set(['steps','hrv','calories','workout_minutes']); // higher = better
+  const metrics = [
+    { key: 'sleep_hours',      label: 'Sleep',    unit: 'h',   val: roll7?.sleep_hours },
+    { key: 'steps',            label: 'Steps',    unit: '/day', val: roll7?.steps },
+    { key: 'hrv',              label: 'HRV',      unit: 'ms',  val: roll7?.hrv },
+    { key: 'resting_hr',       label: 'HR',       unit: 'bpm', val: roll7?.resting_hr },
+    { key: 'workout_minutes',  label: 'Workout',  unit: 'min', val: roll7?.workout_minutes },
+    { key: 'calories',         label: 'Calories', unit: 'kcal',val: roll7?.calories },
+  ];
+
+  const container = document.getElementById('public-trends-row');
+  if (!container) return;
+
+  container.innerHTML = metrics.map(m => {
+    const dir   = trends[m.key] || 'flat';
+    const arrow = ARROW[dir] || '→';
+    // For HR, down is good; for everything else, up is good
+    const isGood = m.key === 'resting_hr' ? dir === 'down' : dir === 'up';
+    const color  = dir === 'flat' ? 'var(--muted)' : isGood ? 'var(--green)' : 'var(--red)';
+    const avg    = m.val !== undefined ? (m.key === 'steps' ? Math.round(m.val).toLocaleString() : parseFloat(m.val).toFixed(1)) : '—';
+    return `<div class="pub-trend-tile">
+      <div class="pub-trend-label">${m.label}</div>
+      <div class="pub-trend-avg">${avg}<span class="pub-trend-unit"> ${m.unit}</span></div>
+      <div class="pub-trend-arrow" style="color:${color}">${arrow} 7-day</div>
+    </div>`;
+  }).join('');
+  container.style.display = 'grid';
+}
+
+function injectPublicUnlockBanner() {
+  if (document.getElementById('public-unlock-banner')) return; // already injected
+  const section = document.getElementById('watch-section');
+  if (!section) return;
+  const banner = document.createElement('div');
+  banner.id = 'public-unlock-banner';
+  banner.className = 'public-unlock-banner';
+  banner.innerHTML = `<span><strong>Live Apple Watch data</strong> — exact values visible after sign in</span>
+    <button class="public-unlock-btn" onclick="showLanding()">Sign In →</button>`;
+  section.insertBefore(banner, section.firstChild);
+}
 
 function showPublicView(view, el) {
   document.getElementById('login-screen').classList.add('hidden');
@@ -4072,19 +4487,26 @@ function showPublicView(view, el) {
   // First public visit — init watch section from cache, render public views
   if (!window._publicBooted) {
     window._publicBooted = true;
-    initWatchSection();
     renderDashboard();
     renderPipeline();
     renderAbout();
     renderRecords();
+    fetchPublicHealthData(); // load momentum + trends + blurred watch cards
   }
 }
 
 function showLanding() {
+  // Show the landing/home screen
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('login-screen').scrollTop = 0;
-  setTimeout(() => document.getElementById('login-section')
-    .scrollIntoView({ behavior:'smooth', block:'center' }), 200);
+  // Deactivate all nav tabs, mark Home active
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mobile-tab-bar button').forEach(b => b.classList.remove('active'));
+  const homeTab = document.querySelector('.nav-tab[onclick="showLanding()"]');
+  if (homeTab) homeTab.classList.add('active');
+  const mHomeTab = document.getElementById('mtab-home');
+  if (mHomeTab) mHomeTab.classList.add('active');
+  if (window.innerWidth <= 600) window.scrollTo({top:0, behavior:'smooth'});
 }
 
 // Boot
@@ -4093,7 +4515,21 @@ if(isLoggedIn()) {
   updateNavForAuth();
   bootApp();
 } else {
+  // Public visitor — show Today view directly, no login required
+  document.getElementById('login-screen').classList.add('hidden');
+  const signIn = document.getElementById('nav-signin-btn');
+  const logout = document.getElementById('nav-logout-btn');
+  if (signIn) signIn.style.display = 'inline-block';
+  if (logout) logout.style.display = 'none';
   setTimeout(animatePipeline, 800);
+  // Boot public dashboard
+  window._publicBooted = true;
+  renderDashboard();
+  renderPipeline();
+  renderAbout();
+  renderRecords();
+  fetchPublicHealthData();
+  initMobileTabBar();
 }
 
 

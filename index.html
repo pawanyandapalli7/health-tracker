@@ -1295,11 +1295,11 @@ textarea.note-ta::placeholder { color: var(--muted); }
   <div class="nav-logo">Health OS <span>/ pawan</span></div>
   <div class="nav-tabs">
     <button class="nav-tab active" id="ntab-home" onclick="showLanding()">Home</button>
-    <button class="nav-tab" id="ntab-today" onclick="showPublicView('today',this)">Today</button>
+    <button class="nav-tab" id="ntab-today" onclick="switchViewGated('today',this)">Today</button>
     <button class="nav-tab" id="ntab-dashboard" onclick="showPublicView('dashboard',this)">Dashboard</button>
-    <button class="nav-tab" id="ntab-records" onclick="showPublicView('records',this)">Records</button>
+    <button class="nav-tab" id="ntab-records" onclick="switchViewGated('records',this)">Records</button>
     <button class="nav-tab" id="ntab-pipeline" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
-    <button class="nav-tab" id="ntab-data" onclick="showPublicView('data',this)">🔬 Data</button>
+    <button class="nav-tab" id="ntab-data" onclick="switchViewGated('data',this)">🔬 Data</button>
     <button class="nav-tab" id="ntab-about" onclick="showPublicView('about',this)">About</button>
     <button class="nav-tab" id="ntab-notes" onclick="switchViewGated('notes',this)">Notes</button>
   </div>
@@ -1307,25 +1307,25 @@ textarea.note-ta::placeholder { color: var(--muted); }
     <div class="sync-pill"><div class="sdot" id="sdot"></div><span id="slbl">—</span></div>
     <button class="icon-btn" onclick="openSettings()">⚙</button>
     <button class="icon-btn danger" id="nav-logout-btn" onclick="doLogout()">↩</button>
-    <button class="landing-signin-btn" id="nav-signin-btn" onclick="showLanding()" style="display:none;font-size:0.72rem;padding:0.4rem 1rem;">Sign In</button>
+    <button class="landing-signin-btn" id="nav-signin-btn" onclick="scrollToLogin()" style="display:none;font-size:0.72rem;padding:0.4rem 1rem;">Sign In</button>
   </div>
 </nav>
 
 <!-- ═══════ MOBILE BOTTOM TAB BAR ═══════ -->
 <div class="mobile-tab-bar" id="mobile-tab-bar" style="display:none">
-  <button id="mtab-home" onclick="showLanding()">
+  <button class="active" id="mtab-home" onclick="showLanding()">
     <span class="tab-icon">🏠</span>Home
   </button>
-  <button class="active" id="mtab-today" onclick="mobileTab('today',this)">
+  <button id="mtab-today" onclick="switchViewGated('today',this)">
     <span class="tab-icon">📅</span>Today
   </button>
-  <button id="mtab-dashboard" onclick="mobileTab('dashboard',this)">
+  <button id="mtab-dashboard" onclick="showPublicView('dashboard',this)">
     <span class="tab-icon">📊</span>Dash
   </button>
-  <button id="mtab-pipeline" onclick="mobileTab('pipeline',this)">
+  <button id="mtab-pipeline" onclick="showPublicView('pipeline',this)">
     <span class="tab-icon">⚡</span>Pipeline
   </button>
-  <button id="mtab-notes" onclick="mobileTab('notes',this)">
+  <button id="mtab-notes" onclick="switchViewGated('notes',this)">
     <span class="tab-icon">📝</span>Notes
   </button>
 </div>
@@ -1333,7 +1333,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
 <!-- ═══════════════════════════════════════
      TODAY VIEW
 ═══════════════════════════════════════ -->
-<div class="view active" id="view-today">
+<div class="view" id="view-today">
 
   <!-- Install Banner -->
   <div class="install-banner" id="install-banner">
@@ -1523,73 +1523,113 @@ textarea.note-ta::placeholder { color: var(--muted); }
      DASHBOARD VIEW
 ═══════════════════════════════════════ -->
 <div class="view" id="view-dashboard">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
-    <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Health <span style="color:var(--gold)">Intelligence</span></div>
-    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted)">Last 30 days</div>
-  </div>
 
-  <div id="weekly-summary-wrap"></div>
-
-  <div class="chart-card">
-    <div class="dash-section-title">30-Day Momentum</div>
-    <div class="bar-chart" id="momentum-chart"></div>
-    <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
-      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">30 days ago</div>
-      <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">Today</div>
+  <!-- PUBLIC dashboard (visitors) -->
+  <div id="dashboard-public" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+      <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Health <span style="color:var(--gold)">Overview</span></div>
+      <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted)">Last 7 days · public view</div>
     </div>
-  </div>
 
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="dash-section-title">Category Breakdown</div>
-      <div id="cat-breakdown"></div>
+    <!-- Sign-in nudge -->
+    <div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--gold);padding:0.9rem 1.1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+      <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted2)">🔒 Sign in to see personal routine, mood tracking, completion heatmap & full analytics</div>
+      <button onclick="scrollToLogin()" style="background:var(--gold);color:#000;border:none;padding:0.4rem 1rem;font-family:var(--mono);font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">Sign In →</button>
     </div>
-    <div class="chart-card">
-      <div class="dash-section-title">Mood & Energy (7 days)</div>
-      <div style="margin-bottom:0.5rem;">
-        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">MOOD</div>
-        <div class="mood-timeline" id="mood-chart"></div>
+
+    <!-- 7-day health trend tiles -->
+    <div id="pub-dash-trends" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.2rem;"></div>
+
+    <!-- Recovery history -->
+    <div class="chart-card" style="margin-bottom:1rem;">
+      <div class="dash-section-title">Recovery Score · Last 7 Days</div>
+      <div id="pub-dash-recovery" style="display:flex;align-items:flex-end;gap:6px;height:80px;padding-top:0.5rem;"></div>
+    </div>
+
+    <!-- HRV + Sleep trend -->
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="dash-section-title">HRV Trend · 7 Days</div>
+        <div id="pub-dash-hrv" style="display:flex;align-items:flex-end;gap:6px;height:60px;padding-top:0.5rem;"></div>
       </div>
-      <div>
-        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">ENERGY</div>
-        <div class="mood-timeline" id="energy-chart"></div>
+      <div class="chart-card">
+        <div class="dash-section-title">Sleep · 7 Days</div>
+        <div id="pub-dash-sleep" style="display:flex;align-items:flex-end;gap:6px;height:60px;padding-top:0.5rem;"></div>
       </div>
     </div>
   </div>
 
-  <div class="two-col">
-    <div class="chart-card">
-      <div class="dash-section-title">Most Missed → Fix</div>
-      <div id="missed-list"></div>
+  <!-- OWNER dashboard (logged in) -->
+  <div id="dashboard-owner" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem;">
+      <div style="font-family:var(--display);font-size:1.5rem;font-weight:800">Health <span style="color:var(--gold)">Intelligence</span></div>
+      <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted)">Last 30 days</div>
     </div>
+
+    <div id="weekly-summary-wrap"></div>
+
     <div class="chart-card">
-      <div class="dash-section-title">Trend Signals</div>
-      <div id="trend-signals"></div>
+      <div class="dash-section-title">30-Day Momentum</div>
+      <div class="bar-chart" id="momentum-chart"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">30 days ago</div>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted)">Today</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="dash-section-title">Category Breakdown</div>
+        <div id="cat-breakdown"></div>
+      </div>
+      <div class="chart-card">
+        <div class="dash-section-title">Mood & Energy (7 days)</div>
+        <div style="margin-bottom:0.5rem;">
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">MOOD</div>
+          <div class="mood-timeline" id="mood-chart"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:0.35rem">ENERGY</div>
+          <div class="mood-timeline" id="energy-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="dash-section-title">Most Missed → Fix</div>
+        <div id="missed-list"></div>
+      </div>
+      <div class="chart-card">
+        <div class="dash-section-title">Trend Signals</div>
+        <div id="trend-signals"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="dash-section-title">Weight Trend (from Apple Health)</div>
+      <div id="dash-weight-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
+      <div style="position:relative;height:120px;">
+        <svg id="dash-weight-svg" viewBox="0 0 600 120" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;"></svg>
+      </div>
+      <div id="dash-weight-empty" class="empty-state" style="display:none">No weight data yet — connect Apple Watch to auto-sync.</div>
+    </div>
+
+    <div class="chart-card">
+      <div class="dash-section-title">Completion Heatmap</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-legend">
+        <span>Less</span>
+        <div class="lc" style="background:#141a24"></div>
+        <div class="lc" style="background:#1e3020"></div>
+        <div class="lc" style="background:#2a5030"></div>
+        <div class="lc" style="background:#3ecf82;opacity:0.5"></div>
+        <div class="lc" style="background:#3ecf82"></div>
+        <span>More</span>
+      </div>
     </div>
   </div>
 
-  <div class="chart-card">
-    <div class="dash-section-title">Weight Trend (from Apple Health)</div>
-    <div id="dash-weight-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1rem;"></div>
-    <div style="position:relative;height:120px;">
-      <svg id="dash-weight-svg" viewBox="0 0 600 120" preserveAspectRatio="none" style="width:100%;height:100%;overflow:visible;"></svg>
-    </div>
-    <div id="dash-weight-empty" class="empty-state" style="display:none">No weight data yet — connect Apple Watch to auto-sync.</div>
-  </div>
-
-  <div class="chart-card">
-    <div class="dash-section-title">Completion Heatmap</div>
-    <div class="heatmap" id="heatmap"></div>
-    <div class="heat-legend">
-      <span>Less</span>
-      <div class="lc" style="background:#141a24"></div>
-      <div class="lc" style="background:#1e3020"></div>
-      <div class="lc" style="background:#2a5030"></div>
-      <div class="lc" style="background:#3ecf82;opacity:0.5"></div>
-      <div class="lc" style="background:#3ecf82"></div>
-      <span>More</span>
-    </div>
-  </div>
 </div>
 
 <!-- ═══════════════════════════════════════
@@ -1791,10 +1831,10 @@ async function doLogin() {
       if (data.success) {
         authToken = data.token;
         sessionStorage.setItem('hos_token', authToken);
-        document.getElementById('login-screen').classList.add('hidden');
         err.classList.remove('show');
         updateNavForAuth();
-        bootApp();
+        initApp();
+        switchView('today', document.getElementById('ntab-today'));
       } else {
         throw new Error('Invalid credentials');
       }
@@ -1810,10 +1850,10 @@ async function doLogin() {
     const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
     if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
       sessionStorage.setItem('hos_auth','1');
-      document.getElementById('login-screen').classList.add('hidden');
       err.classList.remove('show');
       updateNavForAuth();
-      bootApp();
+      initApp();
+      switchView('today', document.getElementById('ntab-today'));
     } else {
       err.classList.add('show');
       btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
@@ -2624,7 +2664,97 @@ function renderToday() {
 // ═══════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════
+// ── PUBLIC DASHBOARD — visitors see health trends, no personal task data ──────
+async function renderPublicDashboard() {
+  if (!isBackendConfigured()) {
+    document.getElementById('pub-dash-trends').innerHTML =
+      `<div style="grid-column:1/-1;font-family:var(--mono);font-size:0.75rem;color:var(--muted);padding:2rem 0;text-align:center">Backend not connected — no live data available.</div>`;
+    return;
+  }
+
+  try {
+    // Fetch history (last 7 days) — public endpoint via /latest gives enough
+    const r = await fetch(`${BACKEND_URL}/api/health/latest`);
+    if (!r.ok) return;
+    const payload = await r.json();
+    const d = payload.derived;
+    const roll7  = d?.rolling?.roll7  ?? {};
+    const trends = d?.rolling?.trends ?? {};
+
+    // ── Trend tiles ──────────────────────────────────────────────────────────
+    const TILES = [
+      { key: 'sleep_hours',     label: 'Sleep',    unit: 'h',    icon: '😴', goodUp: false },
+      { key: 'steps',           label: 'Steps',    unit: '/day', icon: '👟', goodUp: true  },
+      { key: 'hrv',             label: 'HRV',      unit: 'ms',   icon: '💚', goodUp: true  },
+      { key: 'resting_hr',      label: 'Resting HR',unit:'bpm',  icon: '❤️', goodUp: false },
+      { key: 'workout_minutes', label: 'Workout',  unit: 'min',  icon: '🏋️', goodUp: true  },
+      { key: 'calories',        label: 'Calories', unit: 'kcal', icon: '🔥', goodUp: true  },
+    ];
+    const ARROW = { up: '↑', down: '↓', flat: '→' };
+
+    document.getElementById('pub-dash-trends').innerHTML = TILES.map(t => {
+      const val = roll7[t.key];
+      const tr  = trends[t.key] ?? 'flat';
+      const good = t.goodUp ? tr === 'up' : tr === 'down';
+      const bad  = t.goodUp ? tr === 'down' : tr === 'up';
+      const color = good ? 'var(--green)' : bad ? 'var(--red)' : 'var(--muted)';
+      const display = val != null ? `${Number(val).toFixed(1)} <span style="font-size:0.65rem;color:var(--muted)">${t.unit}</span>` : '—';
+      return `<div style="background:var(--card);border:1px solid var(--border);padding:1rem;">
+        <div style="font-size:1.2rem;margin-bottom:0.4rem">${t.icon}</div>
+        <div style="font-family:var(--mono);font-size:0.58rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:0.3rem">${t.label}</div>
+        <div style="font-family:var(--display);font-size:1.4rem;font-weight:800;line-height:1">${display}</div>
+        <div style="font-family:var(--mono);font-size:0.7rem;color:${color};margin-top:0.3rem">${ARROW[tr]} 7-day avg</div>
+      </div>`;
+    }).join('');
+
+    // ── Recovery bars ─────────────────────────────────────────────────────────
+    const recEl = document.getElementById('pub-dash-recovery');
+    const recScore = d?.recovery?.score;
+    if (recScore != null) {
+      const color = d.recovery.color === 'green' ? 'var(--green)' : d.recovery.color === 'amber' ? 'var(--gold)' : 'var(--red)';
+      recEl.innerHTML = `
+        <div style="display:flex;align-items:flex-end;gap:6px;height:100%;width:100%">
+          <div style="flex:1;height:${recScore}%;background:${color};border-radius:2px 2px 0 0;transition:height 0.6s;position:relative;" title="Today: ${recScore}">
+            <div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:0.6rem;color:${color}">${recScore}</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted2);padding-bottom:0.2rem">${d.recovery.label}</div>
+        </div>`;
+    } else {
+      recEl.innerHTML = `<div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">No recovery data</div>`;
+    }
+
+    // ── HRV sparkbar ─────────────────────────────────────────────────────────
+    function sparkBars(containerId, value, unit, color) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (value == null) { el.innerHTML = `<div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted)">No data</div>`; return; }
+      el.innerHTML = `
+        <div style="display:flex;flex-direction:column;justify-content:center;padding:0.5rem 0">
+          <div style="font-family:var(--display);font-size:1.6rem;font-weight:800;color:${color}">${Number(value).toFixed(1)}</div>
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted)">${unit} · 7-day avg</div>
+        </div>`;
+    }
+
+    sparkBars('pub-dash-hrv',   roll7.hrv,         'ms HRV',  'var(--green)');
+    sparkBars('pub-dash-sleep', roll7.sleep_hours,  'h sleep', 'var(--blue)');
+
+  } catch(e) {
+    console.warn('[public dashboard]', e.message);
+  }
+}
+
 function renderDashboard() {
+  if (!isLoggedIn()) {
+    // Show public dashboard for visitors
+    document.getElementById('dashboard-public').style.display = 'block';
+    document.getElementById('dashboard-owner').style.display  = 'none';
+    renderPublicDashboard();
+    return;
+  }
+  // Owner dashboard
+  document.getElementById('dashboard-public').style.display = 'none';
+  document.getElementById('dashboard-owner').style.display  = 'block';
+
   const allKeys=Object.keys(localData).sort();
   const allItems=getAllCheckable();
   const days7=getLast7Keys();
@@ -4255,12 +4385,16 @@ function renderContributionHeatmap() {
 
 
 function scrollToLogin() {
-  document.getElementById('login-screen').classList.remove('hidden');
+  // Make sure landing page is visible
+  showLanding();
   setTimeout(() => {
     const el = document.getElementById('login-section');
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => document.getElementById('li-user').focus(), 400);
-  }, 100);
+    setTimeout(() => {
+      const u = document.getElementById('li-user');
+      if (u) u.focus();
+    }, 400);
+  }, 150);
 }
 
 // Animate pipeline stages sequentially on load
@@ -4284,9 +4418,9 @@ function animatePipeline() {
 }
 
 // Which tabs require login
-const PRIVATE_TABS = new Set(['notes']);
+const PRIVATE_TABS = new Set(['today','records','data','notes']);
 // Which tabs are always public
-const PUBLIC_TABS  = new Set(['today','pipeline','about','dashboard','records','data']);
+const PUBLIC_TABS  = new Set(['pipeline','about','dashboard']);
 
 function switchViewGated(view, el) {
   if (PRIVATE_TABS.has(view) && !isLoggedIn()) {
@@ -4377,44 +4511,44 @@ async function fetchPublicHealthData() {
     if (d?.momentum?.score !== undefined) {
       const s   = d.momentum.score;
       const cls = s >= 80 ? 'thriving' : s >= 55 ? 'stable' : 'risk';
-      const scoreEl = document.getElementById('momentum-score') || document.getElementById('m-score');
-      const labelEl = document.getElementById('momentum-label') || document.getElementById('m-status');
-      const barEl   = document.getElementById('momentum-bar-fill') || document.getElementById('m-bar');
+      const scoreEl = document.getElementById('m-score');
+      const labelEl = document.getElementById('m-status');
+      const barEl   = document.getElementById('m-bar');
       if (scoreEl) { scoreEl.textContent = s; scoreEl.className = 'momentum-score ' + cls; }
-      if (labelEl) labelEl.textContent = d.momentum.label;
-      if (barEl)   barEl.style.width = s + '%';
+      if (labelEl) { labelEl.textContent = d.momentum.label; labelEl.className = 'momentum-status ' + cls; }
+      if (barEl)   { barEl.style.width = s + '%'; barEl.style.background = cls === 'thriving' ? 'var(--green)' : cls === 'stable' ? 'var(--gold)' : 'var(--red)'; }
     }
 
-    // ── Public: show recovery score (ring) — blurred value for non-auth ───────
+    // ── Recovery ring — show for public with blurred score ────────────────────
     const rec = d?.recovery;
-    if (rec?.score != null && !isLoggedIn()) {
-      document.getElementById('recovery-insight-row').style.display = 'grid';
-      const statusEl = document.getElementById('recovery-status');
-      const adviceEl = document.getElementById('recovery-advice');
-      // Show status label but blur the numeric score for public
-      if (statusEl) { statusEl.textContent = rec.label; statusEl.style.color = rec.color === 'green' ? 'var(--green)' : rec.color === 'amber' ? 'var(--gold)' : 'var(--red)'; }
-      if (adviceEl) adviceEl.textContent = rec.advice ?? '';
-      // Score ring — show blurred
+    if (rec?.score != null) {
+      const card      = document.getElementById('recovery-card');
+      const ringFill  = document.getElementById('recovery-ring-fill');
       const scoreText = document.getElementById('recovery-ring-score');
-      if (scoreText) { scoreText.textContent = '?'; scoreText.style.filter = 'blur(5px)'; }
+      const statusEl  = document.getElementById('recovery-status');
+      const adviceEl  = document.getElementById('recovery-advice');
+      const color     = rec.color === 'green' ? '#3ecf82' : rec.color === 'amber' ? '#f0c040' : '#e74c3c';
+      const circumference = 2 * Math.PI * 36;
+      const offset = circumference - (rec.score / 100) * circumference;
+      if (card)      card.style.display = 'flex';
+      if (ringFill)  { ringFill.style.strokeDasharray = circumference; ringFill.style.strokeDashoffset = offset; ringFill.setAttribute('stroke', color); }
+      if (scoreText) { scoreText.textContent = isLoggedIn() ? rec.score : '?'; scoreText.setAttribute('fill', color); if (!isLoggedIn()) scoreText.style.filter = 'blur(4px)'; }
+      if (statusEl)  { statusEl.textContent = rec.label; statusEl.style.color = color; }
+      if (adviceEl)  adviceEl.textContent = rec.advice ?? '';
     }
 
-    // ── Insight card — public sees summary but not signals ────────────────────
+    // ── Insight card — public sees summary only ───────────────────────────────
     const insight = payload.insight ?? d?.insight;
-    if (insight?.summary && !isLoggedIn()) {
-      document.getElementById('recovery-insight-row').style.display = 'grid';
+    if (insight?.summary) {
       const card    = document.getElementById('insight-card');
       const summary = document.getElementById('insight-summary');
-      const badge   = document.getElementById('insight-tone-badge');
       const icon    = document.getElementById('insight-icon');
-      const TONE_ICON = { positive: '✅', advisory: '⚠️', caution: '🔴', neutral: '🔵' };
-      if (icon)    icon.textContent    = TONE_ICON[insight.tone] ?? '🧠';
-      if (summary) summary.textContent = insight.summary;
-      if (card)    card.className      = `insight-card tone-${insight.tone}`;
-      if (badge)   { badge.textContent = insight.tone; badge.className = `insight-tone-badge ${insight.tone}`; }
-      // Signals hidden for public — show sign-in nudge instead
       const signals = document.getElementById('insight-signals');
-      if (signals) signals.innerHTML = `<div class="insight-signal note"><span class="sig-dot" style="background:var(--muted)"></span><span style="color:var(--muted)">Sign in to see all health signals</span></div>`;
+      const TONE_ICON = { positive: '✅', advisory: '⚠️', caution: '🔴', neutral: '🔵' };
+      if (card)    { card.style.display = 'flex'; card.className = `insight-card tone-${insight.tone ?? 'neutral'}`; }
+      if (icon)    icon.textContent    = TONE_ICON[insight.tone] ?? '💡';
+      if (summary) summary.textContent = insight.summary;
+      if (signals && !isLoggedIn()) signals.innerHTML = `<div class="insight-signal note" style="color:var(--muted)">Sign in to see all health signals →</div>`;
     }
 
     // ── Trends row ────────────────────────────────────────────────────────────
@@ -4422,21 +4556,21 @@ async function fetchPublicHealthData() {
       renderPublicTrends(d.rolling.trends, d.rolling.roll7);
     }
 
-    // ── Blurred watch cards ───────────────────────────────────────────────────
-    const watchData = mapBackendToWatchData(c);
-    if (Object.values(watchData).some(v => v !== null)) {
-      showWatchCards();
-      renderWatchCards(watchData);
-      const grid = document.getElementById('watch-grid');
-      if (grid) grid.classList.add('public-blur');
-      injectPublicUnlockBanner();
-      const syncEl = document.getElementById('watch-last-sync');
-      if (syncEl && payload.freshness) {
-        syncEl.textContent = payload.freshness.age_hours < 1
-          ? `live · ${Math.round(payload.freshness.age_hours*60)}m ago`
-          : `${payload.freshness.age_hours}h ago`;
+    // ── Watch cards: only for logged-in owner ─────────────────────────────────
+    if (isLoggedIn()) {
+      const watchData = mapBackendToWatchData(c);
+      if (Object.values(watchData).some(v => v !== null)) {
+        showWatchCards();
+        renderWatchCards(watchData);
+        const syncEl = document.getElementById('watch-last-sync');
+        if (syncEl && payload.freshness) {
+          syncEl.textContent = payload.freshness.age_hours < 1
+            ? `live · ${Math.round(payload.freshness.age_hours*60)}m ago`
+            : `${payload.freshness.age_hours}h ago`;
+        }
       }
     }
+
   } catch(e) {
     console.warn('[public] fetchPublicHealthData failed:', e.message);
   }

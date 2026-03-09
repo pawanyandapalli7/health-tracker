@@ -229,6 +229,8 @@
     "note": "",
     "mood": 4,
     "energy": 4,
-    "graceUsed": []
+    "graceUsed": [
+      1
+    ]
   }
 }

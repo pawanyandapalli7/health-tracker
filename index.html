@@ -1294,8 +1294,8 @@ textarea.note-ta::placeholder { color: var(--muted); }
 <nav>
   <div class="nav-logo">Health OS <span>/ pawan</span></div>
   <div class="nav-tabs">
-    <button class="nav-tab" id="ntab-home" onclick="showLanding()">Home</button>
-    <button class="nav-tab active" id="ntab-today" onclick="showPublicView('today',this)">Today</button>
+    <button class="nav-tab active" id="ntab-home" onclick="showLanding()">Home</button>
+    <button class="nav-tab" id="ntab-today" onclick="showPublicView('today',this)">Today</button>
     <button class="nav-tab" id="ntab-dashboard" onclick="showPublicView('dashboard',this)">Dashboard</button>
     <button class="nav-tab" id="ntab-records" onclick="showPublicView('records',this)">Records</button>
     <button class="nav-tab" id="ntab-pipeline" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
@@ -1342,8 +1342,8 @@ textarea.note-ta::placeholder { color: var(--muted); }
     <button class="icon-btn" onclick="document.getElementById('install-banner').classList.remove('show')" style="padding:0.3rem 0.6rem">✕</button>
   </div>
 
-  <!-- Command Bar -->
-  <div class="command-bar">
+  <!-- Command Bar (owner only) -->
+  <div class="command-bar owner-only" style="display:none">
     <div class="date-ctrl">
       <button class="d-btn" id="prev-btn" onclick="shiftDay(-1)">‹</button>
       <input type="date" id="date-picker" onchange="onDateChange(this.value)" />
@@ -1369,8 +1369,8 @@ textarea.note-ta::placeholder { color: var(--muted); }
     <button class="copy-yesterday-btn" onclick="copyYesterday()">⎘ Same as yesterday</button>
   </div>
 
-  <!-- Today's Focus -->
-  <div class="focus-card" id="focus-card">
+  <!-- Today's Focus (owner only) -->
+  <div class="focus-card owner-only" id="focus-card" style="display:none">
     <div class="focus-icon" id="focus-icon">🎯</div>
     <div>
       <div class="focus-eyebrow">Today's Focus</div>
@@ -1421,7 +1421,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
       <div class="momentum-status" id="m-status"></div>
       <div class="momentum-bar"><div class="momentum-bar-fill" id="m-bar"></div></div>
     </div>
-    <div class="stats-grid">
+    <div class="stats-grid owner-only" style="display:none">
       <div class="stat-tile">
         <div class="stat-tile-label">Streak</div>
         <div class="stat-tile-value g" id="st-streak">0</div>
@@ -1440,8 +1440,8 @@ textarea.note-ta::placeholder { color: var(--muted); }
     </div>
   </div>
 
-  <!-- Mood + Energy -->
-  <div class="mood-row">
+  <!-- Mood + Energy (owner only) -->
+  <div class="mood-row owner-only" style="display:none">
     <div class="mood-card">
       <div class="mood-label">Mood Today</div>
       <div class="rating-dots" id="mood-dots"></div>
@@ -1458,7 +1458,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
   <div id="public-trends-row" style="display:none;grid-template-columns:repeat(6,1fr);gap:0.6rem;margin-bottom:1rem;"></div>
 
   <!-- Apple Watch -->
-  <div class="watch-section" id="watch-section">
+  <div class="watch-section" id="watch-section" style="display:none">
     <div class="watch-header">
       <div class="watch-title">⌚ Apple Watch</div>
       <div style="display:flex;align-items:center;gap:0.6rem;">
@@ -4324,8 +4324,13 @@ async function initApp() {
 }
 
 function bootApp() {
-  if(isConfigured()) { document.getElementById('setup-overlay').classList.add('hidden'); initApp(); }
-  else { document.getElementById('setup-overlay').classList.remove('hidden'); }
+  if(isConfigured()) {
+    document.getElementById('setup-overlay').classList.add('hidden');
+    showLanding(); // always open home page first
+    initApp();     // init data in background
+  } else {
+    document.getElementById('setup-overlay').classList.remove('hidden');
+  }
   initMobileTabBar();
 }
 
@@ -4335,6 +4340,10 @@ function updateNavForAuth() {
   const logout = document.getElementById('nav-logout-btn');
   if (signIn) signIn.style.display = 'none';
   if (logout) logout.style.display = 'inline-flex';
+  // Show all owner-only sections
+  document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
+  const watchSection = document.getElementById('watch-section');
+  if (watchSection) watchSection.style.display = 'block';
   // Remove public blur — owner sees exact values
   const grid = document.getElementById('watch-grid');
   if (grid) grid.classList.remove('public-blur');
@@ -4511,19 +4520,22 @@ function showLanding() {
 
 // Boot
 if(isLoggedIn()) {
-  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden'); // show landing first
   updateNavForAuth();
-  bootApp();
+  bootApp(); // bootApp calls showLanding() then initApp()
 } else {
-  // Public visitor — show Today view directly, no login required
-  document.getElementById('login-screen').classList.add('hidden');
+  // Public visitor — show landing/home page first
+  document.getElementById('login-screen').classList.remove('hidden');
   const signIn = document.getElementById('nav-signin-btn');
   const logout = document.getElementById('nav-logout-btn');
   if (signIn) signIn.style.display = 'inline-block';
   if (logout) logout.style.display = 'none';
+  // Mark Home tab active
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const homeTab = document.querySelector('.nav-tab[onclick="showLanding()"]');
+  if (homeTab) homeTab.classList.add('active');
   setTimeout(animatePipeline, 800);
-  // Boot public dashboard
-  window._publicBooted = true;
+  // Pre-load data in background (ready when user clicks "View Live Dashboard")
   renderDashboard();
   renderPipeline();
   renderAbout();

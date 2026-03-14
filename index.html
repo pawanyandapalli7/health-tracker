@@ -455,7 +455,7 @@ nav {
 /* ═══════════════════════════════════════
    MOMENTUM + STATS ROW
 ═══════════════════════════════════════ */
-.top-row { display: grid; grid-template-columns: auto auto 1fr; gap: 1rem; margin-bottom: 1rem; align-items: stretch; }
+.top-row { display: grid; grid-template-columns: minmax(280px, auto) minmax(160px, auto) 1fr; gap: 1rem; margin-bottom: 1rem; align-items: stretch; }
 
 .momentum-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 1.3rem 1.5rem;
@@ -478,7 +478,7 @@ nav {
 /* ── RECOVERY RING ────────────────────────────────────────── */
 .recovery-card {
   background: var(--card); border: 1px solid var(--border);
-  padding: 1.1rem 1.3rem 1.1rem 1rem; display: flex; align-items: center; gap: 1rem;
+  padding: 1.1rem 1.3rem 1.1rem 1.2rem; display: flex; align-items: center; gap: 1.1rem;
   position: relative;
 }
 .recovery-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 120%, rgba(62,207,130,0.06) 0%, transparent 70%); pointer-events: none; }
@@ -501,12 +501,13 @@ nav {
 /* ── INSIGHT CARD ─────────────────────────────────────────── */
 .insight-card {
   background: var(--card); border: 1px solid var(--border);
-  border-left-width: 3px; padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--muted); padding: 0.9rem 1.1rem;
   display: flex; align-items: flex-start; gap: 0.8rem;
+  margin-bottom: 1rem;
 }
-.insight-card.tone-positive  { border-left-color: var(--green); }
-.insight-card.tone-advisory  { border-left-color: var(--gold); }
-.insight-card.tone-caution   { border-left-color: var(--red); }
+.insight-card.tone-positive  { border-left-color: var(--green); background: rgba(62,207,130,0.04); }
+.insight-card.tone-advisory  { border-left-color: var(--gold);  background: rgba(240,192,64,0.04); }
+.insight-card.tone-caution   { border-left-color: var(--red);   background: rgba(231,76,60,0.04); }
 .insight-card.tone-neutral   { border-left-color: var(--muted); }
 .insight-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
 .insight-body { flex: 1; min-width: 0; }

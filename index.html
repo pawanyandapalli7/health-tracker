@@ -1232,26 +1232,15 @@ textarea.note-ta::placeholder { color: var(--muted); }
     ${['Apple HealthKit','Node.js + Express','Heroku','GitHub API','Vanilla JS','Service Worker (PWA)'].map(t=>`<span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted2)">${t}</span>`).join('<span style="color:var(--border2)">·</span>')}
   </div>
 
-  <!-- Login section -->
+  <!-- Login CTA - modal handles actual login -->
   <div class="landing-login-section" id="login-section">
     <div class="landing-login-label">🔒 Owner Access — Pawan Yandapalli</div>
-    <div class="landing-login-box">
-      <div style="text-align:center;margin-bottom:1.5rem;">
-        <div style="font-family:var(--display);font-size:1.3rem;font-weight:800;margin-bottom:0.25rem;">Sign In</div>
-        <div style="font-size:0.75rem;color:var(--muted2)">Unlocks routine tracking, mood logging,<br>and the full data inspector</div>
-      </div>
-      <div class="l-field">
-        <label>Username</label>
-        <input type="text" id="li-user" placeholder="Enter username" autocomplete="username" />
-      </div>
-      <div class="l-field">
-        <label>Password</label>
-        <input type="password" id="li-pass" placeholder="Enter password" autocomplete="current-password" />
-      </div>
-      <div class="login-err" id="login-err">✗ Incorrect username or password</div>
-      <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
-      <div style="margin-top:1rem;text-align:center;font-family:var(--mono);font-size:0.62rem;color:var(--muted)">
-        Visitors can view Pipeline, About, and public metrics without signing in.
+    <div class="landing-login-box" style="text-align:center;">
+      <div style="font-family:var(--display);font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">Full Access</div>
+      <div style="font-size:0.75rem;color:var(--muted2);margin-bottom:1.5rem;">Unlocks routine tracking, mood logging,<br>and the full data inspector</div>
+      <button class="login-btn" onclick="openLoginModal()">Sign In →</button>
+      <div style="margin-top:1rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted)">
+        Visitors can view Pipeline, Dashboard & About without signing in.
       </div>
     </div>
   </div>
@@ -1323,11 +1312,11 @@ textarea.note-ta::placeholder { color: var(--muted); }
     <button class="nav-tab active" id="ntab-home" onclick="showLanding()">Home</button>
     <button class="nav-tab owner-only" id="ntab-today" onclick="switchViewGated('today',this)" style="display:none">Today</button>
     <button class="nav-tab" id="ntab-dashboard" onclick="showPublicView('dashboard',this)">Dashboard</button>
-    <button class="nav-tab" id="ntab-records" onclick="switchViewGated('records',this)">Records</button>
+    <button class="nav-tab owner-only" id="ntab-records" onclick="switchViewGated('records',this)" style="display:none">Records</button>
     <button class="nav-tab" id="ntab-pipeline" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
-    <button class="nav-tab" id="ntab-data" onclick="switchViewGated('data',this)">🔬 Data</button>
+    <button class="nav-tab owner-only" id="ntab-data" onclick="switchViewGated('data',this)" style="display:none">🔬 Data</button>
     <button class="nav-tab" id="ntab-about" onclick="showPublicView('about',this)">About</button>
-    <button class="nav-tab" id="ntab-notes" onclick="switchViewGated('notes',this)">Notes</button>
+    <button class="nav-tab owner-only" id="ntab-notes" onclick="switchViewGated('notes',this)" style="display:none">Notes</button>
   </div>
   <div class="nav-right">
     <div class="sync-pill"><div class="sdot" id="sdot"></div><span id="slbl">—</span></div>
@@ -1837,56 +1826,9 @@ function isLoggedIn() {
   return sessionStorage.getItem('hos_auth') === '1';
 }
 
-// ── Prompt 13: Login via backend API ─────────────────────────────────────────
 async function doLogin() {
-  const u = document.getElementById('li-user').value.trim();
-  const p = document.getElementById('li-pass').value;
-  const err = document.getElementById('login-err');
-  const btn = document.getElementById('login-btn');
-
-  if (isBackendConfigured()) {
-    // Live backend login
-    btn.textContent = 'Signing in...'; btn.disabled = true;
-    try {
-      const r = await fetch(`${BACKEND_URL}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u, password: p }),
-      });
-      const data = await r.json();
-      if (data.success) {
-        authToken = data.token;
-        sessionStorage.setItem('hos_token', authToken);
-        err.classList.remove('show');
-        updateNavForAuth();
-        initApp();
-        switchView('today', document.getElementById('ntab-today'));
-      } else {
-        throw new Error('Invalid credentials');
-      }
-    } catch(e) {
-      err.classList.add('show');
-      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
-      document.getElementById('li-pass').value = '';
-      document.getElementById('li-pass').focus();
-    }
-    btn.textContent = 'Sign In →'; btn.disabled = false;
-  } else {
-    // Fallback: local hash check (offline mode)
-    const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
-    if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
-      sessionStorage.setItem('hos_auth','1');
-      err.classList.remove('show');
-      updateNavForAuth();
-      initApp();
-      switchView('today', document.getElementById('ntab-today'));
-    } else {
-      err.classList.add('show');
-      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
-      document.getElementById('li-pass').value = '';
-      document.getElementById('li-pass').focus();
-    }
-  }
+  // doLogin is now an alias for doModalLogin — all login goes through the modal
+  return doModalLogin();
 }
 
 function doLogout() {
@@ -1991,9 +1933,9 @@ function applyLiveHealthData(payload) {
   if (d?.momentum?.score !== undefined) {
     const s = d.momentum.score;
     const cls = s >= 80 ? 'thriving' : s >= 55 ? 'stable' : 'risk';
-    const scoreEl = document.getElementById('momentum-score') || document.getElementById('m-score');
-    const labelEl = document.getElementById('momentum-label') || document.getElementById('m-status');
-    const barEl   = document.getElementById('momentum-bar-fill') || document.getElementById('m-bar');
+    const scoreEl = document.getElementById('m-score');
+    const labelEl = document.getElementById('m-status');
+    const barEl   = document.getElementById('m-bar');
     if (scoreEl) { scoreEl.textContent = s; scoreEl.className = 'momentum-score ' + cls; }
     if (labelEl) { labelEl.textContent = d.momentum.label; labelEl.className = 'momentum-status ' + cls; }
     if (barEl) {
@@ -2018,7 +1960,7 @@ function applyLiveHealthData(payload) {
 
     if (card)      card.style.display     = 'flex';
     if (ringFill)  { ringFill.style.strokeDasharray  = circumference; ringFill.style.strokeDashoffset = offset; ringFill.setAttribute('stroke', color); }
-    if (scoreText) { scoreText.textContent = rec.score; scoreText.setAttribute('fill', color); }
+    if (scoreText) { scoreText.textContent = rec.score; scoreText.setAttribute('fill', color); scoreText.style.filter = 'none'; }
     if (statusEl)  { statusEl.textContent = rec.label; statusEl.style.color = color; }
     if (adviceEl)  adviceEl.textContent = rec.advice ?? '';
     if (compsEl && Array.isArray(rec.components)) {
@@ -4552,6 +4494,9 @@ function updateNavForAuth() {
   if (grid) grid.classList.remove('public-blur');
   const banner = document.getElementById('public-unlock-banner');
   if (banner) banner.remove();
+  // Clear any blur applied to recovery score by public view
+  const recScore = document.getElementById('recovery-ring-score');
+  if (recScore) recScore.style.filter = 'none';
   // Hide public trends row — owner sees full watch cards instead
   const trendsRow = document.getElementById('public-trends-row');
   if (trendsRow) trendsRow.style.display = 'none';

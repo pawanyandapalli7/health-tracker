@@ -262,5 +262,15 @@
     "mood": 0,
     "energy": 0,
     "graceUsed": []
+  },
+  "2026-03-13": {
+    "checks": {
+      "0-0": true,
+      "0-2": true
+    },
+    "note": "",
+    "mood": 0,
+    "energy": 0,
+    "graceUsed": []
   }
 }

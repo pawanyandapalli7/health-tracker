@@ -14,7 +14,9 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-
+/* ═══════════════════════════════════════
+   TOKENS — matches pawanyandapalli.com
+═══════════════════════════════════════ */
 :root {
   --bg: #080808;
   --surface: #0f0f0f;
@@ -39,6 +41,9 @@
   --serif: 'Instrument Serif', serif;
 }
 
+/* ═══════════════════════════════════════
+   LIGHT MODE — matches pawanyandapalli.com
+═══════════════════════════════════════ */
 html.light {
   --bg: #f7f3ee;
   --surface: #ece6db;
@@ -167,6 +172,9 @@ body::after {
   100% { transform: translateY(200vh); opacity: 0; }
 }
 
+/* ═══════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════ */
 #login-screen {
   position: fixed; inset: 0;
   background: var(--bg);
@@ -1258,6 +1266,30 @@ textarea.note-ta::placeholder { color: var(--muted); }
 
 </div><!-- end landing-wrap -->
 </div><!-- end login-screen -->
+
+<!-- ═══════ LOGIN MODAL ═══════ -->
+<div id="login-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border2);padding:2rem;width:100%;max-width:360px;margin:1rem;position:relative;">
+    <button onclick="closeLoginModal()" style="position:absolute;top:0.75rem;right:0.75rem;background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;line-height:1;">✕</button>
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div style="font-family:var(--display);font-size:1.3rem;font-weight:800;margin-bottom:0.25rem;">Sign In</div>
+      <div style="font-size:0.75rem;color:var(--muted2)">Owner access — Pawan Yandapalli</div>
+    </div>
+    <div class="l-field">
+      <label>Username</label>
+      <input type="text" id="m-user" placeholder="Enter username" autocomplete="username" />
+    </div>
+    <div class="l-field">
+      <label>Password</label>
+      <input type="password" id="m-pass" placeholder="Enter password" autocomplete="current-password" />
+    </div>
+    <div class="login-err" id="m-login-err">✗ Incorrect username or password</div>
+    <button class="login-btn" id="m-login-btn" onclick="doModalLogin()">Sign In →</button>
+    <div style="margin-top:1rem;text-align:center;font-family:var(--mono);font-size:0.62rem;color:var(--muted)">
+      Visitors can browse Pipeline, Dashboard & About without signing in.
+    </div>
+  </div>
+</div>
 
 <!-- ═══════ GITHUB SETUP ═══════ -->
 <div class="overlay hidden" id="setup-overlay">
@@ -4376,17 +4408,83 @@ function renderContributionHeatmap() {
 })();
 
 
-function scrollToLogin() {
-  // Make sure landing page is visible
-  showLanding();
+function openLoginModal() {
+  const modal = document.getElementById('login-modal');
+  modal.style.display = 'flex';
   setTimeout(() => {
-    const el = document.getElementById('login-section');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(() => {
-      const u = document.getElementById('li-user');
-      if (u) u.focus();
-    }, 400);
-  }, 150);
+    const u = document.getElementById('m-user');
+    if (u) u.focus();
+  }, 100);
+}
+
+function closeLoginModal() {
+  document.getElementById('login-modal').style.display = 'none';
+  document.getElementById('m-user').value = '';
+  document.getElementById('m-pass').value = '';
+  document.getElementById('m-login-err').classList.remove('show');
+}
+
+async function doModalLogin() {
+  const u = document.getElementById('m-user').value.trim();
+  const p = document.getElementById('m-pass').value;
+  const err = document.getElementById('m-login-err');
+  const btn = document.getElementById('m-login-btn');
+
+  if (isBackendConfigured()) {
+    btn.textContent = 'Signing in...'; btn.disabled = true;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p }),
+      });
+      const data = await r.json();
+      if (data.success) {
+        authToken = data.token;
+        sessionStorage.setItem('hos_token', authToken);
+        err.classList.remove('show');
+        closeLoginModal();
+        updateNavForAuth();
+        initApp();
+        switchView('today', document.getElementById('ntab-today'));
+      } else { throw new Error('bad credentials'); }
+    } catch(e) {
+      err.classList.add('show');
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      document.getElementById('m-pass').value = '';
+      document.getElementById('m-pass').focus();
+    }
+    btn.textContent = 'Sign In →'; btn.disabled = false;
+  } else {
+    const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
+    if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
+      sessionStorage.setItem('hos_auth','1');
+      err.classList.remove('show');
+      closeLoginModal();
+      updateNavForAuth();
+      initApp();
+      switchView('today', document.getElementById('ntab-today'));
+    } else {
+      err.classList.add('show');
+      btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+      document.getElementById('m-pass').value = '';
+      document.getElementById('m-pass').focus();
+    }
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('login-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeLoginModal();
+});
+
+// Enter key in modal fields
+['m-user','m-pass'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') doModalLogin(); });
+});
+
+function scrollToLogin() {
+  openLoginModal();
 }
 
 // Animate pipeline stages sequentially on load
@@ -4608,7 +4706,7 @@ function injectPublicUnlockBanner() {
   banner.id = 'public-unlock-banner';
   banner.className = 'public-unlock-banner';
   banner.innerHTML = `<span><strong>Live Apple Watch data</strong> — exact values visible after sign in</span>
-    <button class="public-unlock-btn" onclick="showLanding()">Sign In →</button>`;
+    <button class="public-unlock-btn" onclick="openLoginModal()">Sign In →</button>`;
   section.insertBefore(banner, section.firstChild);
 }
 

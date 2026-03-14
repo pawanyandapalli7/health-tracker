@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Health OS">
+<!-- Hide views before JS runs to prevent flash -->
+<style>.view { display: none !important; } .view.active { display: block !important; }</style>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="alternate icon" href="favicon.ico">
 <link rel="apple-touch-icon" href="favicon.svg">
@@ -1134,7 +1136,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
 <div class="pipeline-bg" id="pipeline-bg"></div>
 
 <!-- ═══════ LOGIN ═══════ -->
-<div id="login-screen">
+<div id="login-screen" class="hidden">
 <div class="landing-wrap">
 
   <nav class="landing-nav">
@@ -1168,7 +1170,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
     </div>
 
     <div class="landing-cta-row">
-      <button class="landing-cta-primary" onclick="showPublicView('today', document.getElementById('ntab-today'))">View Live Dashboard →</button>
+      <button class="landing-cta-primary" onclick="showPublicView('dashboard', document.getElementById('ntab-dashboard'))">View Live Dashboard →</button>
       <a href="https://github.com/pawanyandapalli7/health-tracker" target="_blank">
         <button class="landing-cta-secondary">View Source on GitHub ↗</button>
       </a>
@@ -1319,7 +1321,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
   <div class="nav-logo">Health OS <span>/ pawan</span></div>
   <div class="nav-tabs">
     <button class="nav-tab active" id="ntab-home" onclick="showLanding()">Home</button>
-    <button class="nav-tab" id="ntab-today" onclick="switchViewGated('today',this)">Today</button>
+    <button class="nav-tab owner-only" id="ntab-today" onclick="switchViewGated('today',this)" style="display:none">Today</button>
     <button class="nav-tab" id="ntab-dashboard" onclick="showPublicView('dashboard',this)">Dashboard</button>
     <button class="nav-tab" id="ntab-records" onclick="switchViewGated('records',this)">Records</button>
     <button class="nav-tab" id="ntab-pipeline" onclick="showPublicView('pipeline',this)">⚡ Pipeline</button>
@@ -1340,7 +1342,7 @@ textarea.note-ta::placeholder { color: var(--muted); }
   <button class="active" id="mtab-home" onclick="showLanding()">
     <span class="tab-icon">🏠</span>Home
   </button>
-  <button id="mtab-today" onclick="switchViewGated('today',this)">
+  <button class="owner-only" id="mtab-today" onclick="switchViewGated('today',this)" style="display:none">
     <span class="tab-icon">📅</span>Today
   </button>
   <button id="mtab-dashboard" onclick="showPublicView('dashboard',this)">
@@ -2181,32 +2183,7 @@ const FIXES = {
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
-function isLoggedIn() { return sessionStorage.getItem('hos_auth') === '1'; }
 
-async function doLogin() {
-  const u = document.getElementById('li-user').value.trim();
-  const p = document.getElementById('li-pass').value;
-  const err = document.getElementById('login-err');
-  const btn = document.getElementById('login-btn');
-
-  const [uHash, pHash] = await Promise.all([hashStr(u), hashStr(p)]);
-
-  if (uHash === AUTH_USER_HASH && pHash === AUTH_PASS_HASH) {
-    sessionStorage.setItem('hos_auth','1');
-    document.getElementById('login-screen').classList.add('hidden');
-    err.classList.remove('show');
-    bootApp();
-  } else {
-    err.classList.add('show');
-    btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
-    document.getElementById('li-pass').value = '';
-    document.getElementById('li-pass').focus();
-  }
-}
-function doLogout() { sessionStorage.removeItem('hos_auth'); location.reload(); }
-
-document.getElementById('li-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('li-pass').focus(); });
-document.getElementById('li-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 // ═══════════════════════════════════════
 // GITHUB CONFIG
@@ -4731,44 +4708,72 @@ function showPublicView(view, el) {
 }
 
 function showLanding() {
-  // Show the landing/home screen
+  // Hide all content views
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  // Show landing screen
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('login-screen').scrollTop = 0;
   // Deactivate all nav tabs, mark Home active
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.mobile-tab-bar button').forEach(b => b.classList.remove('active'));
-  const homeTab = document.querySelector('.nav-tab[onclick="showLanding()"]');
+  const homeTab = document.getElementById('ntab-home');
   if (homeTab) homeTab.classList.add('active');
   const mHomeTab = document.getElementById('mtab-home');
   if (mHomeTab) mHomeTab.classList.add('active');
-  if (window.innerWidth <= 600) window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// Boot
-if(isLoggedIn()) {
-  document.getElementById('login-screen').classList.remove('hidden'); // show landing first
-  updateNavForAuth();
-  bootApp(); // bootApp calls showLanding() then initApp()
-} else {
-  // Public visitor — show landing/home page first
-  document.getElementById('login-screen').classList.remove('hidden');
-  const signIn = document.getElementById('nav-signin-btn');
-  const logout = document.getElementById('nav-logout-btn');
-  if (signIn) signIn.style.display = 'inline-block';
-  if (logout) logout.style.display = 'none';
-  // Mark Home tab active
+// ══════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════
+(function boot() {
+  const loggedIn = isLoggedIn();
+
+  // Always hide all content views on load
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+
+  // Nav: clear all active tabs
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  const homeTab = document.querySelector('.nav-tab[onclick="showLanding()"]');
-  if (homeTab) homeTab.classList.add('active');
-  setTimeout(animatePipeline, 800);
-  // Pre-load data in background (ready when user clicks "View Live Dashboard")
-  renderDashboard();
-  renderPipeline();
-  renderAbout();
-  renderRecords();
-  fetchPublicHealthData();
+  document.querySelectorAll('.mobile-tab-bar button').forEach(b => b.classList.remove('active'));
+
   initMobileTabBar();
-}
+
+  if (loggedIn) {
+    // ── OWNER BOOT ────────────────────────────────────
+    const signIn = document.getElementById('nav-signin-btn');
+    const logout = document.getElementById('nav-logout-btn');
+    if (signIn) signIn.style.display = 'none';
+    if (logout) logout.style.display = 'inline-flex';
+    updateNavForAuth();
+
+    // Start on Home (landing)
+    showLanding();
+    initApp();
+
+  } else {
+    // ── PUBLIC VISITOR BOOT ───────────────────────────
+    const signIn = document.getElementById('nav-signin-btn');
+    const logout = document.getElementById('nav-logout-btn');
+    if (signIn) signIn.style.display = 'inline-block';
+    if (logout) logout.style.display = 'none';
+
+    // Show landing / home page
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-screen').scrollTop = 0;
+
+    // Mark Home tab active
+    const homeTab = document.getElementById('ntab-home');
+    if (homeTab) homeTab.classList.add('active');
+    const mHomeTab = document.getElementById('mtab-home');
+    if (mHomeTab) mHomeTab.classList.add('active');
+
+    // Pre-render public views in background
+    renderDashboard();   // shows public dashboard panel
+    renderPipeline();
+    renderAbout();
+    fetchPublicHealthData();
+    setTimeout(animatePipeline, 800);
+  }
+})();
 
 
 

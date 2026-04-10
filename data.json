@@ -346,5 +346,12 @@
     "mood": 0,
     "energy": 0,
     "graceUsed": []
+  },
+  "2026-04-10": {
+    "checks": {},
+    "note": "",
+    "mood": 5,
+    "energy": 0,
+    "graceUsed": []
   }
 }
